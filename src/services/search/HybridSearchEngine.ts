@@ -40,7 +40,10 @@ export class HybridSearchEngine<T extends Searchable> {
   }
 
   /**
-   * Realiza búsqueda híbrida con múltiples estrategias
+   * Realiza búsqueda híbrida con prioridad jerárquica
+   * 1. Primero busca matches exactos
+   * 2. Si no encuentra exactos, busca fuzzy
+   * 3. Si no encuentra fuzzy, busca parciales
    */
   search(query: string, options: SearchOptions = { threshold: 0.4 }): SearchResult<T>[] {
     if (!query || query.trim().length === 0) {
@@ -48,39 +51,50 @@ export class HybridSearchEngine<T extends Searchable> {
     }
 
     const normalizedQuery = TextNormalizationService.normalize(query);
-    const results = new Map<string, SearchResult<T>>();
 
-    // 1. Búsqueda exacta (score más alto)
-    this.exactSearch(query, normalizedQuery, results);
+    // 1. Intentar búsqueda exacta primero
+    const exactResults = this.getExactMatches(query, normalizedQuery);
+    if (exactResults.length > 0) {
+      return this.limitAndSort(exactResults, options);
+    }
 
-    // 2. Búsqueda fuzzy con Fuse.js
-    this.fuzzySearch(query, options, results);
+    // 2. Si no hay exactos, intentar fuzzy
+    const fuzzyResults = this.getFuzzyMatches(query, options);
+    if (fuzzyResults.length > 0) {
+      return this.limitAndSort(fuzzyResults, options);
+    }
 
-    // 3. Búsqueda parcial normalizada
-    this.partialSearch(normalizedQuery, results);
-
-    // Convertir a array y ordenar por score
-    const sortedResults = Array.from(results.values())
-      .filter(result => !options.minScore || result.score >= options.minScore)
-      .sort((a, b) => b.score - a.score);
-
-    // Limitar resultados si se especifica
-    return options.maxResults 
-      ? sortedResults.slice(0, options.maxResults)
-      : sortedResults;
+    // 3. Si no hay fuzzy, intentar búsqueda parcial
+    const partialResults = this.getPartialMatches(normalizedQuery);
+    return this.limitAndSort(partialResults, options);
   }
 
   /**
-   * Búsqueda exacta - Mayor prioridad
+   * Aplica filtros y límites a los resultados
    */
-  private exactSearch(query: string, normalizedQuery: string, results: Map<string, SearchResult<T>>): void {
+  private limitAndSort(results: SearchResult<T>[], options: SearchOptions): SearchResult<T>[] {
+    const filteredResults = results
+      .filter(result => !options.minScore || result.score >= options.minScore)
+      .sort((a, b) => b.score - a.score);
+
+    return options.maxResults 
+      ? filteredResults.slice(0, options.maxResults)
+      : filteredResults;
+  }
+
+  /**
+   * Obtiene matches exactos únicamente
+   */
+  private getExactMatches(query: string, normalizedQuery: string): SearchResult<T>[] {
+    const results: SearchResult<T>[] = [];
+
     for (const item of this.items) {
       const normalizedName = TextNormalizationService.normalize(item.name);
       const normalizedCategory = TextNormalizationService.normalize((item as any).category || '');
 
       // Match exacto en nombre
       if (normalizedName === normalizedQuery) {
-        results.set(item.id, {
+        results.push({
           item,
           score: 1.0,
           matchType: 'exact',
@@ -92,7 +106,7 @@ export class HybridSearchEngine<T extends Searchable> {
 
       // Match exacto en categoría
       if (normalizedCategory === normalizedQuery) {
-        results.set(item.id, {
+        results.push({
           item,
           score: 0.95,
           matchType: 'exact',
@@ -101,48 +115,44 @@ export class HybridSearchEngine<T extends Searchable> {
         });
       }
     }
+
+    return results;
   }
 
   /**
-   * Búsqueda fuzzy con Fuse.js
+   * Obtiene matches fuzzy únicamente
    */
-  private fuzzySearch(query: string, options: SearchOptions, results: Map<string, SearchResult<T>>): void {
+  private getFuzzyMatches(query: string, options: SearchOptions): SearchResult<T>[] {
     const fuseResults = this.fuse.search(query);
+    const results: SearchResult<T>[] = [];
 
     for (const fuseResult of fuseResults) {
       const { item, score = 1 } = fuseResult;
-      
-      // Solo agregar si no existe o tiene mejor score que fuzzy
-      const existingResult = results.get(item.id);
       const fuzzyScore = Math.max(0, (1 - score) * 0.8); // Convertir score de Fuse.js y limitarlo
 
-      if (!existingResult || (existingResult.matchType === 'partial' && fuzzyScore > existingResult.score)) {
-        const matchedTerms = fuseResult.matches
-          ? fuseResult.matches.map(match => match.value || '')
-          : [item.name];
+      const matchedTerms = fuseResult.matches
+        ? fuseResult.matches.map(match => match.value || '')
+        : [item.name];
 
-        results.set(item.id, {
-          item,
-          score: fuzzyScore,
-          matchType: 'fuzzy',
-          matchedTerms,
-          originalQuery: query
-        });
-      }
+      results.push({
+        item,
+        score: fuzzyScore,
+        matchType: 'fuzzy',
+        matchedTerms,
+        originalQuery: query
+      });
     }
+
+    return results;
   }
 
   /**
-   * Búsqueda parcial normalizada
+   * Obtiene matches parciales únicamente
    */
-  private partialSearch(normalizedQuery: string, results: Map<string, SearchResult<T>>): void {
-    for (const item of this.items) {
-      // Skip si ya existe con mejor score
-      const existingResult = results.get(item.id);
-      if (existingResult && existingResult.matchType !== 'partial') {
-        continue;
-      }
+  private getPartialMatches(normalizedQuery: string): SearchResult<T>[] {
+    const results: SearchResult<T>[] = [];
 
+    for (const item of this.items) {
       const normalizedName = TextNormalizationService.normalize(item.name);
       const normalizedCategory = TextNormalizationService.normalize((item as any).category || '');
 
@@ -162,7 +172,7 @@ export class HybridSearchEngine<T extends Searchable> {
       }
 
       if (matchScore > 0) {
-        results.set(item.id, {
+        results.push({
           item,
           score: matchScore,
           matchType: 'partial',
@@ -171,6 +181,8 @@ export class HybridSearchEngine<T extends Searchable> {
         });
       }
     }
+
+    return results;
   }
 
   /**

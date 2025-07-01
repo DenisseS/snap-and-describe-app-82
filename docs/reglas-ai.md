@@ -1,0 +1,9 @@
+- Alguna pregunta sobre el plan, que cosas añadirias o que quitarías? Hay mejores metodologias
+- No crear estado booleanos, crear estados como enum que permite manejar mejor los estados 
+- Reutilizar la logica
+- Evitar usar efectos y si lo usan que no tenga muchas variables que cambie el efecto para evitar dependencias ciclicas
+- Para las cosas async evitar los race condition, no poner cosas que sean tan dependientes de otras, llevar de manera modular el manejo de datos
+- Borrar imports y variables que no se usen
+- Traducciones si hay nuevo texto
+- Finalizar solo cuando hayas acabado de correguir todos los errores de build. No terminar el codigo hasta que su pueda hacer un build exitoso.
+- Has un resumen al final de los cambios que has hecho y extiende en un docs/prompts con los cambios que has hecho en forma de plan y que efecto tienen en la app.

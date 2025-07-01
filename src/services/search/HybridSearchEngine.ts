@@ -22,7 +22,7 @@ export class HybridSearchEngine<T extends Searchable> {
   /**
    * Configuración optimizada de Fuse.js
    */
-  private getFuseConfig(): Fuse.IFuseOptions<T> {
+  private getFuseConfig() {
     return {
       threshold: 0.4,        // Tolerancia a errores tipográficos
       location: 0,           // Posición esperada del match

@@ -1,51 +1,84 @@
 
-# Implementación Fase 1: Sistema de Búsqueda Híbrido
+# Implementación Fase 1 y 2: Sistema de Búsqueda Híbrido Refactorizado
 
 ## Resumen de la Implementación
 
-Se ha implementado la Fase 1 del sistema de búsqueda híbrido que mejora significativamente la capacidad de búsqueda de la aplicación, permitiendo encontrar productos incluso con errores tipográficos, acentos faltantes y variaciones en el texto.
+Se ha completado la refactorización del sistema de búsqueda híbrido implementando los patrones **Strategy** y **Chain of Responsibility** para mejorar significativamente el scoring, orden de resultados y extensibilidad del sistema. El nuevo sistema prioriza correctamente las coincidencias que empiezan con el término buscado y evita resultados irrelevantes.
 
-## Componentes Implementados
+## Componentes Refactorizados
 
-### 1. TextNormalizationService (`src/services/search/TextNormalizationService.ts`)
+### 1. Sistema de Estrategias de Normalización (`src/services/search/strategies/NormalizationStrategy.ts`)
 
-**Propósito**: Normalizar texto para búsquedas más flexibles
+**Propósito**: Strategy pattern para diferentes tipos de normalización de texto
+
+**Estrategias Implementadas**:
+- **StandardNormalizationStrategy**: Normalización estándar configurable
+- **AggressiveNormalizationStrategy**: Normalización agresiva para fuzzy matching
+- **ConservativeNormalizationStrategy**: Normalización conservadora que mantiene más características
+
+**TextNormalizationService Refactorizado**:
+- Usa Strategy pattern internamente
+- Soporte para múltiples estrategias de normalización
+- Backward compatibility mantenida
+- Fácil extensión para nuevos tipos de normalización
+
+### 2. Sistema de Estrategias de Matching (`src/services/search/strategies/MatchStrategy.ts`)
+
+**Propósito**: Strategy pattern para diferentes tipos de coincidencias con scoring inteligente
+
+**Estrategias Implementadas**:
+
+#### ExactMatchStrategy (Prioridad: 100)
+- Match exacto en nombre normalizado (score: 1.0)
+- Match exacto en categoría normalizada (score: 0.95)
+
+#### StartsWithMatchStrategy (Prioridad: 90) 
+- **NUEVA**: Prioriza resultados que empiezan con el término buscado
+- Score dinámico basado en ratio de longitud (0.85-0.95)
+- Resuelve el problema de "zan" → "zanahoria" vs "manzana"
+
+#### ContainsMatchStrategy (Prioridad: 70)
+- Match parcial mejorado con scoring inteligente
+- Score basado en posición del match y longitud relativa
+- Filtro de longitud mínima (3 chars) para evitar matches débiles
+- Penalty por posición: matches más tardíos tienen menor score
+
+### 3. FuzzyMatchStrategy (`src/services/search/strategies/FuzzyMatchStrategy.ts`)
+
+**Propósito**: Estrategia especializada para matching fuzzy con Fuse.js
+
+**Mejoras**:
+- Configuración más estricta (threshold: 0.3, minMatchCharLength: 3)
+- Score más conservador para evitar resultados irrelevantes  
+- Filtro de calidad mínima (score < 0.3 se descarta)
+- Distancia máxima reducida para mayor precisión
+
+### 4. SearchStrategyChain (`src/services/search/SearchStrategyChain.ts`)
+
+**Propósito**: Chain of Responsibility pattern para ejecutar estrategias en orden de prioridad
 
 **Funcionalidades**:
-- Eliminación de acentos usando normalización Unicode (NFD)  
-- Conversión a minúsculas
-- Eliminación de caracteres especiales
-- Creación de variaciones de términos de búsqueda
-- Configuración flexible mediante opciones
+- Ejecución automática por orden de prioridad
+- Deduplicación de resultados por item.id
+- Early return para estrategias de alta prioridad (≥90)
+- Sorting inteligente: score primero, luego alfabético
+- Acumulación de resultados para estrategias de baja prioridad
 
-**Casos de uso resueltos**:
-- "zanaoria" → "zanahoria" ✓
-- "TOMATE" → "tomate" ✓  
-- "piña" ↔ "pina" ✓
+### 5. HybridSearchEngine Refactorizado
 
-### 2. HybridSearchEngine (`src/services/search/HybridSearchEngine.ts`)
+**Cambios Arquitecturales**:
+- Eliminado código monolítico de matching
+- Implementa Chain of Responsibility via SearchStrategyChain
+- Configuración declarativa de estrategias
+- Logging mejorado para debugging
+- Mejor separación de responsabilidades
 
-**Propósito**: Motor de búsqueda con múltiples estrategias de matching
-
-**Algoritmo de 3 pasos**:
-1. **Búsqueda Exacta** (score: 1.0 - 0.95)
-   - Match exacto en nombre normalizado
-   - Match exacto en categoría normalizada
-
-2. **Búsqueda Fuzzy** (score: hasta 0.8)
-   - Usa Fuse.js para tolerancia a errores tipográficos
-   - Configuración optimizada para alimentos
-   - Incluye matches en nombre y categoría
-
-3. **Búsqueda Parcial** (score: 0.6 - 0.5)
-   - Match parcial en texto normalizado
-   - Fallback para términos no encontrados exactamente
-
-**Configuración Fuse.js**:
-- `threshold: 0.4` - Balance entre precisión y tolerancia
-- `keys: [name: 0.8, category: 0.3]` - Prioridad en nombres
-- `includeScore: true` - Para ranking de resultados
-- `includeMatches: true` - Para futuro highlighting
+**Algoritmo Refactorizado**:
+1. **Exact Match** (Prioridad 100): Match exacto → return inmediato
+2. **Starts With** (Prioridad 90): Empieza con término → return inmediato  
+3. **Fuzzy Match** (Prioridad 80): Errores tipográficos → acumular
+4. **Contains** (Prioridad 70): Match parcial → acumular
+5. **Deduplicación y sorting final** si no hay early returns
 
 ### 3. Actualización QueryEngine (`src/services/QueryEngine.ts`)
 
@@ -60,28 +93,29 @@ Se ha implementado la Fase 1 del sistema de búsqueda híbrido que mejora signif
 2. Aplicación de filtros (lógica existente)
 3. Ordenamiento (lógica existente)
 
-## Mejoras Logradas
+## Problemas Resueltos
 
-### ✅ Tolerancia a Errores Tipográficos
-- "zanaoria" encuentra "zanahoria"
-- "tpmate" encuentra "tomate"
-- "manzna" encuentra "manzana"
+### ✅ Scoring y Orden Mejorado
+- **"zan" → "zanahoria"** aparece antes que **"manzana"** (StartsWithMatchStrategy)
+- **"salmo" → "salmón"** sin mostrar "almendras" irrelevante
+- Scoring dinámico basado en relevancia y posición del match
+- Early return para matches de alta calidad
 
-### ✅ Manejo de Acentos
+### ✅ Tolerancia a Errores Tipográficos Refinada
+- Configuración más estricta para evitar falsos positivos
+- "zanaoria" encuentra "zanahoria" sin ruido
+- Threshold más conservador (0.3) para mayor precisión
+
+### ✅ Manejo de Acentos Preservado
 - "pina" encuentra "piña"
-- "platano" encuentra "plátano"
+- "platano" encuentra "plátano" 
 - "oregano" encuentra "orégano"
 
-### ✅ Búsqueda Flexible
-- Búsqueda en nombre y categoría
-- Diferentes niveles de coincidencia
-- Ranking inteligente de resultados
-
-### ✅ Performance
-- Reutilización del índice Fuse.js
-- Actualización eficiente cuando cambian los datos
-- Sin uso de useEffect innecesarios
-- Arquitectura simple y mantenible
+### ✅ Extensibilidad Máxima
+- **Strategy Pattern**: Fácil agregar nuevos tipos de matching
+- **Chain of Responsibility**: Control granular del flujo de búsqueda
+- **Separation of Concerns**: Cada estrategia es independiente y testeable
+- **Configuración Declarativa**: Cambiar prioridades sin tocar lógica
 
 ## Compatibilidad
 
@@ -90,27 +124,78 @@ Se ha implementado la Fase 1 del sistema de búsqueda híbrido que mejora signif
 - ✅ Soporte multiidioma preservado
 - ✅ Sin cambios en interfaces existentes
 
-## Próximas Fases
+## Extensibilidad Futura
 
-**Fase 2**: Sistema de sinónimos (palta ↔ aguacate)
-**Fase 3**: Sistema de caché inteligente
-**Fase 4**: Mejoras UX (highlighting, sugerencias)
+### Fácil Agregar Nuevas Estrategias
+```typescript
+// Ejemplo: Estrategia de sinónimos
+class SynonymMatchStrategy implements MatchStrategy<T> {
+  findMatches(items, query, normalizedQuery) {
+    // Lógica de sinónimos: palta ↔ aguacate
+  }
+  getPriority() { return 85; } // Entre starts_with y fuzzy
+}
+
+// Agregar a la cadena
+chain.addStrategy(new SynonymMatchStrategy());
+```
+
+### Próximas Fases
+**Fase 3**: Sistema de sinónimos usando nueva arquitectura
+**Fase 4**: Sistema de caché inteligente por estrategia  
+**Fase 5**: Mejoras UX (highlighting, sugerencias, analytics por estrategia)
 
 ## Testing Manual
 
-Para probar la nueva funcionalidad:
+Para probar las mejoras de scoring y orden:
 
-1. Ir a la página de Explorar
-2. Buscar términos con errores: "zanaoria", "tpmate", "manzna"
-3. Buscar sin acentos: "pina", "platano", "oregano"  
-4. Buscar en mayúsculas: "TOMATE", "ZANAHORIA"
-5. Verificar que los resultados son relevantes y bien ordenados
+1. **Ir a la página de Explorar**
+2. **Test de Orden Mejorado**:
+   - Buscar **"zan"** → Debe aparecer "zanahoria" PRIMERO, no "manzana"
+   - Buscar **"sal"** → "salmón" primero, "salsa" después
+3. **Test de Irrelevancia Filtrada**:
+   - Buscar **"salmo"** → NO debe aparecer "almendras"
+   - Buscar **"tom"** → "tomate" primero, otros con menor score
+4. **Test de Tolerancia Preservada**:
+   - Buscar **"zanaoria"** → encuentra "zanahoria"
+   - Buscar **"pina"** → encuentra "piña" 
+5. **Test de Estrategias**:
+   - Verificar logging en consola para ver qué estrategia se ejecuta
+   - Verificar que resultados de alta prioridad terminan la búsqueda early
 
-## Configuración
+## Configuración Avanzada
 
-El sistema está configurado para ser extensible:
-- Fácil ajuste de thresholds en HybridSearchEngine
-- Opciones de normalización configurables
-- Configuración Fuse.js optimizable según necesidades
+### Ajustar Prioridades de Estrategias
+```typescript
+// En SearchStrategyChain, cambiar el orden afecta la ejecución
+.addStrategy(new CustomStrategy()) // getPriority() define el orden automáticamente
+```
 
-La implementación prioriza simplicidad, mantenibilidad y performance, sin sobre-ingeniería.
+### Configurar Estrategias Individuales
+```typescript
+// Fuzzy más/menos estricto
+new FuzzyMatchStrategy(items) // threshold en getFuseConfig()
+
+// Normalización personalizada
+new StandardNormalizationStrategy(customOptions)
+```
+
+### Debugging y Monitoreo
+```typescript
+// Ver estrategias registradas
+engine.getStrategiesInfo() 
+
+// Logs automáticos en consola durante búsqueda
+// "Executing strategy: exact"
+// "Strategy starts_with found 2 results"
+```
+
+## Arquitectura
+
+La nueva implementación sigue principios SOLID:
+- **Single Responsibility**: Cada estrategia tiene una responsabilidad específica
+- **Open/Closed**: Extensible para nuevas estrategias sin modificar código existente  
+- **Strategy Pattern**: Algoritmos de matching intercambiables
+- **Chain of Responsibility**: Flujo de control desacoplado y configurable
+
+Sin sobre-ingeniería, máxima extensibilidad.

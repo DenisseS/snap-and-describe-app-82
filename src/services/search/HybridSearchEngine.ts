@@ -1,195 +1,84 @@
 
-import Fuse from 'fuse.js';
 import { Searchable } from '@/types/search';
 import { TextNormalizationService } from './TextNormalizationService';
 import { SearchResult, SearchOptions } from './types';
+import { SearchStrategyChain } from './SearchStrategyChain';
+import { ExactMatchStrategy, StartsWithMatchStrategy, ContainsMatchStrategy } from './strategies/MatchStrategy';
+import { FuzzyMatchStrategy } from './strategies/FuzzyMatchStrategy';
 
 /**
- * Motor de búsqueda híbrido que combina:
- * - Búsqueda exacta (mayor score)
- * - Búsqueda fuzzy con Fuse.js
- * - Búsqueda parcial normalizada
+ * Motor de búsqueda híbrido refactorizado usando Strategy pattern y Chain of Responsibility
+ * Implementa scoring inteligente que prioriza:
+ * 1. Matches exactos
+ * 2. Matches que empiezan con el término (starts with)
+ * 3. Matches fuzzy para errores tipográficos
+ * 4. Matches parciales (contains)
  */
 export class HybridSearchEngine<T extends Searchable> {
-  private fuse: Fuse<T>;
   private items: T[];
+  private strategyChain: SearchStrategyChain<T>;
 
   constructor(items: T[]) {
     this.items = items;
-    this.fuse = new Fuse(items, this.getFuseConfig());
+    this.strategyChain = this.initializeStrategyChain();
   }
 
   /**
-   * Configuración optimizada de Fuse.js
+   * Inicializa la cadena de estrategias de búsqueda
    */
-  private getFuseConfig() {
-    return {
-      threshold: 0.4,        // Tolerancia a errores tipográficos
-      location: 0,           // Posición esperada del match
-      distance: 100,         // Distancia máxima del location
-      maxPatternLength: 32,  // Máximo patrón de búsqueda
-      minMatchCharLength: 2, // Mínimo caracteres para match
-      keys: [
-        { name: 'name', weight: 0.8 },
-        { name: 'category', weight: 0.3 }
-      ],
-      includeScore: true,
-      includeMatches: true,
-      shouldSort: true
-    };
+  private initializeStrategyChain(): SearchStrategyChain<T> {
+    const normalizer = (text: string) => TextNormalizationService.normalize(text, {}, 'standard');
+    
+    const chain = new SearchStrategyChain<T>();
+    
+    // Añadir estrategias en orden de prioridad
+    chain
+      .addStrategy(new ExactMatchStrategy<T>(normalizer))        // Prioridad 100
+      .addStrategy(new StartsWithMatchStrategy<T>(normalizer))   // Prioridad 90
+      .addStrategy(new FuzzyMatchStrategy<T>(this.items))        // Prioridad 80
+      .addStrategy(new ContainsMatchStrategy<T>(normalizer));    // Prioridad 70
+
+    return chain;
   }
 
   /**
-   * Realiza búsqueda híbrida con prioridad jerárquica
-   * 1. Primero busca matches exactos
-   * 2. Si no encuentra exactos, busca fuzzy
-   * 3. Si no encuentra fuzzy, busca parciales
+   * Realiza búsqueda híbrida usando Chain of Responsibility
+   * Ejecuta estrategias en orden de prioridad con scoring inteligente
    */
   search(query: string, options: SearchOptions = { threshold: 0.4 }): SearchResult<T>[] {
     if (!query || query.trim().length === 0) {
       return [];
     }
 
-    const normalizedQuery = TextNormalizationService.normalize(query);
+    const normalizedQuery = TextNormalizationService.normalize(query, {}, 'standard');
+    
+    console.log('HybridSearchEngine: Executing search for:', query);
+    console.log('HybridSearchEngine: Normalized query:', normalizedQuery);
 
-    // 1. Intentar búsqueda exacta primero
-    const exactResults = this.getExactMatches(query, normalizedQuery);
-    if (exactResults.length > 0) {
-      return this.limitAndSort(exactResults, options);
-    }
-
-    // 2. Si no hay exactos, intentar fuzzy
-    const fuzzyResults = this.getFuzzyMatches(query, options);
-    if (fuzzyResults.length > 0) {
-      return this.limitAndSort(fuzzyResults, options);
-    }
-
-    // 3. Si no hay fuzzy, intentar búsqueda parcial
-    const partialResults = this.getPartialMatches(normalizedQuery);
-    return this.limitAndSort(partialResults, options);
-  }
-
-  /**
-   * Aplica filtros y límites a los resultados
-   */
-  private limitAndSort(results: SearchResult<T>[], options: SearchOptions): SearchResult<T>[] {
-    const filteredResults = results
-      .filter(result => !options.minScore || result.score >= options.minScore)
-      .sort((a, b) => b.score - a.score);
-
-    return options.maxResults 
-      ? filteredResults.slice(0, options.maxResults)
-      : filteredResults;
-  }
-
-  /**
-   * Obtiene matches exactos únicamente
-   */
-  private getExactMatches(query: string, normalizedQuery: string): SearchResult<T>[] {
-    const results: SearchResult<T>[] = [];
-
-    for (const item of this.items) {
-      const normalizedName = TextNormalizationService.normalize(item.name);
-      const normalizedCategory = TextNormalizationService.normalize((item as any).category || '');
-
-      // Match exacto en nombre
-      if (normalizedName === normalizedQuery) {
-        results.push({
-          item,
-          score: 1.0,
-          matchType: 'exact',
-          matchedTerms: [item.name],
-          originalQuery: query
-        });
-        continue;
-      }
-
-      // Match exacto en categoría
-      if (normalizedCategory === normalizedQuery) {
-        results.push({
-          item,
-          score: 0.95,
-          matchType: 'exact',
-          matchedTerms: [(item as any).category || ''],
-          originalQuery: query
-        });
-      }
-    }
-
+    // Ejecutar cadena de estrategias
+    const results = this.strategyChain.executeSearch(this.items, query, normalizedQuery, options);
+    
+    console.log(`HybridSearchEngine: Found ${results.length} total results`);
+    
     return results;
   }
 
   /**
-   * Obtiene matches fuzzy únicamente
+   * Obtiene información sobre las estrategias registradas
    */
-  private getFuzzyMatches(query: string, options: SearchOptions): SearchResult<T>[] {
-    const fuseResults = this.fuse.search(query);
-    const results: SearchResult<T>[] = [];
-
-    for (const fuseResult of fuseResults) {
-      const { item, score = 1 } = fuseResult;
-      const fuzzyScore = Math.max(0, (1 - score) * 0.8); // Convertir score de Fuse.js y limitarlo
-
-      const matchedTerms = fuseResult.matches
-        ? fuseResult.matches.map(match => match.value || '')
-        : [item.name];
-
-      results.push({
-        item,
-        score: fuzzyScore,
-        matchType: 'fuzzy',
-        matchedTerms,
-        originalQuery: query
-      });
-    }
-
-    return results;
+  getStrategiesInfo(): { type: string; priority: number }[] {
+    return this.strategyChain.getStrategies().map(strategy => ({
+      type: strategy.getType(),
+      priority: strategy.getPriority()
+    }));
   }
 
   /**
-   * Obtiene matches parciales únicamente
-   */
-  private getPartialMatches(normalizedQuery: string): SearchResult<T>[] {
-    const results: SearchResult<T>[] = [];
-
-    for (const item of this.items) {
-      const normalizedName = TextNormalizationService.normalize(item.name);
-      const normalizedCategory = TextNormalizationService.normalize((item as any).category || '');
-
-      let matchScore = 0;
-      const matchedTerms: string[] = [];
-
-      // Match parcial en nombre
-      if (normalizedName.includes(normalizedQuery)) {
-        matchScore = Math.max(matchScore, 0.6);
-        matchedTerms.push(item.name);
-      }
-
-      // Match parcial en categoría
-      if (normalizedCategory.includes(normalizedQuery)) {
-        matchScore = Math.max(matchScore, 0.5);
-        matchedTerms.push((item as any).category || '');
-      }
-
-      if (matchScore > 0) {
-        results.push({
-          item,
-          score: matchScore,
-          matchType: 'partial',
-          matchedTerms,
-          originalQuery: normalizedQuery
-        });
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * Actualiza los elementos y recrea el índice de Fuse.js
+   * Actualiza los elementos y reinicializa las estrategias
    */
   updateItems(items: T[]): void {
     this.items = items;
-    this.fuse = new Fuse(items, this.getFuseConfig());
+    // Reinicializar la cadena de estrategias con los nuevos items
+    this.strategyChain = this.initializeStrategyChain();
   }
 }

@@ -1,15 +1,16 @@
 
 /**
- * Servicio para normalización de texto en búsquedas
+ * Servicio para normalización de texto en búsquedas usando Strategy pattern
  * Maneja acentos, mayúsculas y caracteres especiales
  */
 
-export interface NormalizationOptions {
-  removeAccents: boolean;
-  toLowerCase: boolean;
-  removeSpecialChars: boolean;
-  trimWhitespace: boolean;
-}
+import { 
+  NormalizationStrategy, 
+  StandardNormalizationStrategy,
+  AggressiveNormalizationStrategy,
+  ConservativeNormalizationStrategy,
+  NormalizationOptions
+} from './strategies/NormalizationStrategy';
 
 export class TextNormalizationService {
   private static readonly DEFAULT_OPTIONS: NormalizationOptions = {
@@ -19,41 +20,28 @@ export class TextNormalizationService {
     trimWhitespace: true
   };
 
+  private static strategies: Map<string, NormalizationStrategy> = new Map([
+    ['standard', new StandardNormalizationStrategy(TextNormalizationService.DEFAULT_OPTIONS)],
+    ['aggressive', new AggressiveNormalizationStrategy()],
+    ['conservative', new ConservativeNormalizationStrategy()]
+  ]);
+
   /**
-   * Normaliza un texto para búsqueda
+   * Normaliza un texto para búsqueda usando la estrategia especificada
    */
-  static normalize(text: string, options: Partial<NormalizationOptions> = {}): string {
+  static normalize(text: string, options: Partial<NormalizationOptions> = {}, strategyName: string = 'standard'): string {
     if (!text) return '';
     
-    const config = { ...this.DEFAULT_OPTIONS, ...options };
-    let normalized = text;
-
-    // Trimear espacios
-    if (config.trimWhitespace) {
-      normalized = normalized.trim();
+    // Si se proporcionan opciones específicas, usar estrategia estándar con esas opciones
+    if (Object.keys(options).length > 0) {
+      const config = { ...this.DEFAULT_OPTIONS, ...options };
+      const customStrategy = new StandardNormalizationStrategy(config);
+      return customStrategy.normalize(text);
     }
 
-    // Convertir a minúsculas
-    if (config.toLowerCase) {
-      normalized = normalized.toLowerCase();
-    }
-
-    // Remover acentos usando normalización Unicode
-    if (config.removeAccents) {
-      normalized = normalized
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-    }
-
-    // Remover caracteres especiales pero mantener espacios
-    if (config.removeSpecialChars) {
-      normalized = normalized.replace(/[^\w\s]/g, '');
-    }
-
-    // Normalizar espacios múltiples
-    normalized = normalized.replace(/\s+/g, ' ');
-
-    return normalized;
+    // Usar estrategia predefinida
+    const strategy = this.strategies.get(strategyName) || this.strategies.get('standard')!;
+    return strategy.normalize(text);
   }
 
   /**

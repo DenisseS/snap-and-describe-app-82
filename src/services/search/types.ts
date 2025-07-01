@@ -14,13 +14,3 @@ export interface SearchOptions {
   maxResults?: number;      // Máximo número de resultados
   minScore?: number;        // Score mínimo para incluir resultado
 }
-
-export interface FuseSearchResult<T> {
-  item: T;
-  score?: number;
-  matches?: Array<{
-    indices: number[][];
-    value: string;
-    key: string;
-  }>;
-}

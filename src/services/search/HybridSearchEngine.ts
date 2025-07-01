@@ -2,7 +2,7 @@
 import Fuse from 'fuse.js';
 import { Searchable } from '@/types/search';
 import { TextNormalizationService } from './TextNormalizationService';
-import { SearchResult, SearchOptions, FuseSearchResult } from './types';
+import { SearchResult, SearchOptions } from './types';
 
 /**
  * Motor de búsqueda híbrido que combina:
@@ -107,7 +107,7 @@ export class HybridSearchEngine<T extends Searchable> {
    * Búsqueda fuzzy con Fuse.js
    */
   private fuzzySearch(query: string, options: SearchOptions, results: Map<string, SearchResult<T>>): void {
-    const fuseResults = this.fuse.search(query) as FuseSearchResult<T>[];
+    const fuseResults = this.fuse.search(query);
 
     for (const fuseResult of fuseResults) {
       const { item, score = 1 } = fuseResult;
@@ -118,7 +118,7 @@ export class HybridSearchEngine<T extends Searchable> {
 
       if (!existingResult || (existingResult.matchType === 'partial' && fuzzyScore > existingResult.score)) {
         const matchedTerms = fuseResult.matches
-          ? fuseResult.matches.map(match => match.value)
+          ? fuseResult.matches.map(match => match.value || '')
           : [item.name];
 
         results.set(item.id, {

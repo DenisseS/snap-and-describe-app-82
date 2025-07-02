@@ -36,9 +36,9 @@ interface SynonymEntry {
 }
 ```
 
-## Datos iniciales incluidos:
+## Datos iniciales incluidos (ACTUALIZADO):
 
-**Productos reales mapeados con IDs:**
+**Productos reales mapeados con IDs existentes:**
 - **Aguacate** (`avocado_001`): palta (Cono Sur), aguacate (América Latina)
 - **Papa dulce** (`sweet_potato_006`): batata (Argentina), boniato (España), camote (México/Perú), ñame (Colombia/Venezuela)
 - **Papas fritas** (`chips_009`): papas fritas (América Latina), patatas fritas (España), papitas (Cono Sur)
@@ -49,11 +49,16 @@ interface SynonymEntry {
 - **Quinoa** (`quinoa_002`): quinua (Andes), kinoa (Chile), quínoa (España)
 - **Arándanos** (`blueberries_005`): arándanos, arándanos azules (España), mirtilo (Rioplatense)
 - **Zanahoria** (`carrot_004`): zanahoria, carlota (Venezuela), daucus (España técnico)
-
-**Frutas exóticas (IDs temporales para futura expansión):**
-- **Lulo**: naranjilla (Ecuador/Perú), obando (Colombia), tomate de árbol pequeño (Venezuela)
-- **Maracuyá**: parchita (Venezuela), chinola (República Dominicana), fruta de la pasión (España)
-- **Guayaba**: guava (inglés), arrayana (Colombia/Venezuela), luma (Chile)
+- **Plátano/Banana** (`banana_010`): banana (Cono Sur), banano (Andes), plátano (México/España), cambur (Venezuela), guineo (Caribe)
+- **Manzana** (`apple_002`): manzana (español), poma (Chile)
+- **Espinaca** (`spinach_003`): espinaca (español), espinafre (Brasil)
+- **Coliflor** (`cauliflower_006`): coliflor (español), couve-flor (Brasil)
+- **Coles de Bruselas** (`brussels_007`): coles de bruselas, repollitas de bruselas (Cono Sur)
+- **Pera** (`pear_008`): pera (español), pêra (Brasil)
+- **Naranja** (`orange_009`): naranja (español), china (Caribe), laranja (Brasil)
+- **Salmón** (`salmon_003`): salmón (español), salmão (Brasil)
+- **Almendras** (`almonds_004`): almendras (español), amêndoas (Brasil)
+- **Palomitas** (usando `chips_009`): palomitas de maíz, pochoclo (Argentina), canguil (Ecuador), cotufas (Venezuela), crispetas (Colombia)
 
 **Traducciones inglés US/UK incluidas para todos los productos**
 

@@ -141,38 +141,122 @@ const synonymsData = {
       "daucus": ["ES"]                         // España (técnico)
     }
   },
-  
-  // Frutas exóticas adicionales
-  "lulo": {
-    canonical: "lulo",
-    productId: "exotic_lulo_001", // ID hipotético para producto futuro
+
+  // Plátano/Banana (producto banana_010)
+  "banana": {
+    canonical: "banana",
+    productId: "banana_010",
     synonyms: {
-      "naranjilla": ["EC", "PE"],              // Ecuador, Perú
-      "obando": ["CO"],                        // Colombia (regional)
-      "tomate de árbol pequeño": ["VE"]        // Venezuela (descripción)
+      "banana": ["AR", "UY", "PY"],                   // Cono Sur
+      "banano": ["CO", "VE", "EC", "PE"],            // América del Norte/Andes
+      "plátano": ["MX", "ES", "GT", "SV", "HN"],     // México, España, Centroamérica
+      "cambur": ["VE"],                               // Venezuela (regional)
+      "guineo": ["DO", "PR", "CU"]                   // Caribe hispanohablante
     }
   },
-  
-  "maracuyá": {
-    canonical: "maracuyá", 
-    productId: "exotic_passion_001", // ID hipotético
+
+  // Manzana (producto apple_002)
+  "apple": {
+    canonical: "apple",
+    productId: "apple_002",
     synonyms: {
-      "parchita": ["VE"],                      // Venezuela
-      "chinola": ["DO"],                       // República Dominicana
-      "fruta de la pasión": ["ES"],            // España
-      "passion fruit": ["US", "GB"]            // Inglés
+      "manzana": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
+      "poma": ["CL"]                                    // Chile (regional)
     }
   },
-  
-  "guayaba": {
-    canonical: "guayaba",
-    productId: "exotic_guava_001", // ID hipotético  
+
+  // Espinaca (producto spinach_003)
+  "spinach": {
+    canonical: "spinach",
+    productId: "spinach_003",
     synonyms: {
-      "guava": ["US", "GB"],                   // Inglés
-      "arrayana": ["CO", "VE"],                // Colombia, Venezuela (regional)
-      "luma": ["CL"]                           // Chile (regional)
+      "espinaca": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
+      "espinafre": ["BR"]                                // Brasil
+    }
+  },
+
+  // Coliflor (producto cauliflower_006)
+  "cauliflower": {
+    canonical: "cauliflower",
+    productId: "cauliflower_006",
+    synonyms: {
+      "coliflor": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
+      "couve-flor": ["BR"]                               // Brasil
+    }
+  },
+
+  // Coles de Bruselas (producto brussels_007)
+  "brussels sprouts": {
+    canonical: "brussels sprouts",
+    productId: "brussels_007",
+    synonyms: {
+      "coles de bruselas": ["ES", "MX", "CO", "AR"],    // Español
+      "repollitas de bruselas": ["AR", "CL"],           // Cono Sur
+      "couvinha de bruxelas": ["BR"]                     // Brasil
+    }
+  },
+
+  // Pera (producto pear_008)
+  "pear": {
+    canonical: "pear",
+    productId: "pear_008",
+    synonyms: {
+      "pera": ["MX", "ES", "CO", "AR", "VE", "EC"],     // Español universal
+      "pêra": ["BR"]                                     // Brasil
+    }
+  },
+
+  // Naranja (producto orange_009)
+  "orange": {
+    canonical: "orange",
+    productId: "orange_009",
+    synonyms: {
+      "naranja": ["MX", "ES", "CO", "AR", "VE", "EC"],  // Español universal
+      "china": ["PR", "DO"],                             // Puerto Rico, República Dominicana
+      "laranja": ["BR"]                                  // Brasil
+    }
+  },
+
+  // Salmón (producto salmon_003)
+  "salmon": {
+    canonical: "salmon",
+    productId: "salmon_003",
+    synonyms: {
+      "salmón": ["MX", "ES", "CO", "AR", "VE", "EC"],   // Español universal
+      "salmão": ["BR"]                                   // Brasil
+    }
+  },
+
+  // Almendras (producto almonds_004)
+  "almonds": {
+    canonical: "almonds",
+    productId: "almonds_004",
+    synonyms: {
+      "almendras": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
+      "amêndoas": ["BR"]                                  // Brasil
+    }
+  },
+
+  // Palomitas de maíz (usando chips como aproximación)
+  "popcorn": {
+    canonical: "popcorn",
+    productId: "chips_009", // Usando el producto de papas fritas como aproximación
+    synonyms: {
+      "palomitas de maíz": ["MX", "ES", "CO", "VE"], // Genérico español
+      "palomitas": ["MX", "ES"],                     // Abreviado México/España
+      "pochoclo": ["AR", "UY"],                      // Rioplatense
+      "canguil": ["EC", "PE"],                       // Ecuador, Perú
+      "cotufas": ["VE"],                             // Venezuela
+      "crispetas": ["CO"],                           // Colombia
+      "pororó": ["BR"],                              // Brasil
+      "rositas de maíz": ["GT", "SV", "HN"]         // Centroamérica
     }
   }
+
+  // NOTA: Se quitaron productos que no existen en la base de datos actual:
+  // corn_001, beans_001, tomato_001, papaya_001, pineapple_001, watermelon_001, 
+  // lulo_001, passion_fruit_001, guava_001
+  // Estos se pueden agregar cuando se expanda la base de productos
 };
 
 // Construir índice de búsqueda optimizado

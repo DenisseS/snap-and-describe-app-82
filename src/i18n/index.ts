@@ -167,6 +167,18 @@ const resources = {
         greek_yogurt_processing_desc: 'Fermented and strained dairy with beneficial probiotic cultures.',
         chia_seeds_processing_desc: 'Natural tiny seeds, rich in omega-3 and fiber.',
         chips_processing_desc: 'Highly processed product with refined oils, added salt and industrial additives to enhance flavor and texture.',
+        // Nuevas descripciones de procesamiento
+        popcorn_processing_desc: 'Air-popped corn kernels without added oils or excessive salt.',
+        lulo_processing_desc: 'Fresh tropical fruit, rich in vitamin C and antioxidants.',
+        corn_processing_desc: 'Fresh or cooked corn kernels, natural grain source.',
+        mango_processing_desc: 'Fresh tropical fruit, excellent source of vitamins A and C.',
+        beans_processing_desc: 'Cooked legumes, excellent source of plant protein and fiber.',
+        tomato_processing_desc: 'Fresh vegetable fruit, rich in lycopene and vitamin C.',
+        papaya_processing_desc: 'Fresh tropical fruit, excellent source of vitamin C and digestive enzymes.',
+        plantain_processing_desc: 'Cooked or raw plantain, rich in potassium and complex carbohydrates.',
+        cacao_processing_desc: 'Raw cacao beans, superfood rich in antioxidants and magnesium.',
+        pineapple_processing_desc: 'Fresh tropical fruit, rich in bromelain enzyme and vitamin C.',
+        yuca_processing_desc: 'Fresh root vegetable, cooked cassava rich in starch and energy.',
         soda_processing_desc: 'Ultra-processed beverage with high fructose corn syrup, artificial colors, preservatives and chemical additives.',
         instant_noodles_processing_desc: 'Pre-cooked and fried noodles with seasoning packet full of monosodium glutamate, preservatives and artificial flavorings.',
         ice_cream_processing_desc: 'Ultra-processed frozen dessert with emulsifiers, stabilizers, artificial colors and flavorings.',
@@ -237,7 +249,21 @@ const resources = {
         artificial_filling: 'Artificial filling',
         soy_lecithin: 'Soy lecithin',
         artificial_aromas: 'Artificial aromas',
-        high_added_sugar: 'High added sugar'
+        high_added_sugar: 'High added sugar',
+        // Nuevos indicadores de procesamiento
+        whole_grain: 'Whole grain',
+        air_popped: 'Air popped',
+        rich_vitamin_a: 'Rich in vitamin A',
+        natural_sweetness: 'Natural sweetness',
+        plant_protein: 'Plant protein',
+        complex_carbs: 'Complex carbs',
+        rich_lycopene: 'Rich in lycopene',
+        antioxidants: 'Antioxidants',
+        digestive_enzymes: 'Digestive enzymes',
+        bromelain_enzyme: 'Bromelain enzyme',
+        starchy_root: 'Starchy root',
+        energy_source: 'Energy source',
+        raw: 'Raw'
       },
       products: {
         broccoli_001: {
@@ -339,6 +365,51 @@ const resources = {
         cookies_015: {
           name: 'Sandwich Cookies',
           description: 'Sandwich cookies with artificial cream filling and hydrogenated oils'
+        },
+        // NUEVOS PRODUCTOS CON REGIONALISMOS
+        popcorn_016: {
+          name: 'Popcorn',
+          description: 'Air-popped corn kernels, whole grain snack'
+        },
+        lulo_017: {
+          name: 'Lulo',
+          description: 'Tropical fruit with citrus flavor, rich in vitamin C'
+        },
+        corn_018: {
+          name: 'Corn',
+          description: 'Fresh corn kernels, natural source of energy and fiber'
+        },
+        mango_019: {
+          name: 'Mango',
+          description: 'Sweet tropical fruit rich in vitamins A and C'
+        },
+        beans_020: {
+          name: 'Black Beans',
+          description: 'Legume rich in plant protein and fiber'
+        },
+        tomato_021: {
+          name: 'Tomato',
+          description: 'Fresh vegetable fruit rich in lycopene and vitamin C'
+        },
+        papaya_022: {
+          name: 'Papaya',
+          description: 'Tropical fruit with digestive enzymes and high vitamin C'
+        },
+        plantain_023: {
+          name: 'Plantain',
+          description: 'Starchy fruit rich in potassium and complex carbohydrates'
+        },
+        cacao_024: {
+          name: 'Raw Cacao',
+          description: 'Raw cacao beans, superfood rich in antioxidants and minerals'
+        },
+        pineapple_025: {
+          name: 'Pineapple',
+          description: 'Tropical fruit with bromelain enzyme and vitamin C'
+        },
+        yuca_026: {
+          name: 'Cassava',
+          description: 'Starchy root vegetable, important source of carbohydrates'
         }
       }
     }
@@ -507,6 +578,18 @@ const resources = {
         greek_yogurt_processing_desc: 'Lácteo fermentado y colado, con cultivos probióticos beneficiosos.',
         chia_seeds_processing_desc: 'Semillas diminutas naturales, ricas en omega-3 y fibra.',
         chips_processing_desc: 'Producto altamente procesado con aceites refinados, sal añadida y aditivos industriales para realzar sabor y textura.',
+        // Nuevas descripciones de procesamiento
+        popcorn_processing_desc: 'Granos de maíz reventados al aire sin aceites añadidos ni sal excesiva.',
+        lulo_processing_desc: 'Fruta tropical fresca, rica en vitamina C y antioxidantes.',
+        corn_processing_desc: 'Granos de maíz frescos o cocidos, fuente natural de granos.',
+        mango_processing_desc: 'Fruta tropical fresca, excelente fuente de vitaminas A y C.',
+        beans_processing_desc: 'Legumbres cocidas, excelente fuente de proteína vegetal y fibra.',
+        tomato_processing_desc: 'Fruto vegetal fresco, rico en licopeno y vitamina C.',
+        papaya_processing_desc: 'Fruta tropical fresca, excelente fuente de vitamina C y enzimas digestivas.',
+        plantain_processing_desc: 'Plátano macho cocido o crudo, rico en potasio y carbohidratos complejos.',
+        cacao_processing_desc: 'Granos de cacao crudos, superalimento rico en antioxidantes y magnesio.',
+        pineapple_processing_desc: 'Fruta tropical fresca, rica en enzima bromelina y vitamina C.',
+        yuca_processing_desc: 'Vegetal de raíz fresco, yuca cocida rica en almidón y energía.',
         soda_processing_desc: 'Bebida ultra procesada con jarabe de maíz alto en fructosa, colorantes artificiales, conservantes y aditivos químicos.',
         instant_noodles_processing_desc: 'Fideos precocidos y fritos con paquete de condimentos lleno de glutamato monosódico, conservantes y saborizantes artificiales.',
         ice_cream_processing_desc: 'Postre congelado ultra procesado con emulsificantes, estabilizantes, colorantes y saborizantes artificiales.',
@@ -577,7 +660,21 @@ const resources = {
         artificial_filling: 'Relleno artificial',
         soy_lecithin: 'Lecitina de soja',
         artificial_aromas: 'Aromas artificiales',
-        high_added_sugar: 'Alto azúcar añadido'
+        high_added_sugar: 'Alto azúcar añadido',
+        // Nuevos indicadores de procesamiento
+        whole_grain: 'Grano integral',
+        air_popped: 'Reventado al aire',
+        rich_vitamin_a: 'Rico en vitamina A',
+        natural_sweetness: 'Dulzura natural',
+        plant_protein: 'Proteína vegetal',
+        complex_carbs: 'Carbohidratos complejos',
+        rich_lycopene: 'Rico en licopeno',
+        antioxidants: 'Antioxidantes',
+        digestive_enzymes: 'Enzimas digestivas',
+        bromelain_enzyme: 'Enzima bromelina',
+        starchy_root: 'Raíz feculenta',
+        energy_source: 'Fuente de energía',
+        raw: 'Crudo'
       },
       products: {
         broccoli_001: {
@@ -679,6 +776,51 @@ const resources = {
         cookies_015: {
           name: 'Galletas Rellenas',
           description: 'Galletas sándwich con relleno artificial y aceites hidrogenados'
+        },
+        // NUEVOS PRODUCTOS CON REGIONALISMOS
+        popcorn_016: {
+          name: 'Palomitas de Maíz',
+          description: 'Granos de maíz reventados al aire, snack integral'
+        },
+        lulo_017: {
+          name: 'Lulo',
+          description: 'Fruta tropical con sabor cítrico, rica en vitamina C'
+        },
+        corn_018: {
+          name: 'Maíz',
+          description: 'Granos de maíz fresco, fuente natural de energía y fibra'
+        },
+        mango_019: {
+          name: 'Mango',
+          description: 'Fruta tropical dulce rica en vitaminas A y C'
+        },
+        beans_020: {
+          name: 'Frijoles Negros',
+          description: 'Legumbre rica en proteína vegetal y fibra'
+        },
+        tomato_021: {
+          name: 'Tomate',
+          description: 'Fruto vegetal fresco rico en licopeno y vitamina C'
+        },
+        papaya_022: {
+          name: 'Papaya',
+          description: 'Fruta tropical con enzimas digestivas y alta vitamina C'
+        },
+        plantain_023: {
+          name: 'Plátano Macho',
+          description: 'Fruta feculenta rica en potasio y carbohidratos complejos'
+        },
+        cacao_024: {
+          name: 'Cacao Crudo',
+          description: 'Granos de cacao crudo, superalimento rico en antioxidantes y minerales'
+        },
+        pineapple_025: {
+          name: 'Piña',
+          description: 'Fruta tropical con enzima bromelina y vitamina C'
+        },
+        yuca_026: {
+          name: 'Yuca',
+          description: 'Vegetal de raíz feculenta, fuente importante de carbohidratos'
         }
       }
     }

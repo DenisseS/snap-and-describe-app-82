@@ -239,9 +239,158 @@ const synonymsData = {
       "chips": ["US", "GB"],                    // Inglés coloquial
       "batata frita": ["BR"]                    // Brasil
     }
-  }
+  },
 
   // PRODUCTOS AGREGADOS CON MUCHOS REGIONALISMOS:
+
+  // Palomitas de maíz (producto popcorn_016)
+  "popcorn": {
+    canonical: "popcorn",
+    productId: "popcorn_016",
+    synonyms: {
+      "palomitas": ["MX", "ES", "VE", "CO"],        // México, España, Venezuela, Colombia
+      "pochoclo": ["AR", "UY"],                     // Argentina, Uruguay
+      "pororó": ["BR"],                             // Brasil
+      "canguil": ["EC"],                            // Ecuador
+      "cotufas": ["VE"],                            // Venezuela (regional)
+      "crispetas": ["CO"],                          // Colombia
+      "cabritas": ["CL", "PE"],                     // Chile, Perú
+      "rositas de maíz": ["MX", "GT", "SV"],       // México, Guatemala, El Salvador
+      "maíz pira": ["CO"],                          // Colombia (rural)
+      "pipoca": ["BR"]                              // Brasil (variante)
+    }
+  },
+
+  // Lulo (producto lulo_017)
+  "lulo": {
+    canonical: "lulo",
+    productId: "lulo_017",
+    synonyms: {
+      "naranjilla": ["EC", "PE"],                   // Ecuador, Perú
+      "nuquí": ["CO"],                              // Colombia (regional)
+      "obando": ["CO"],                             // Colombia (variante)
+      "tomate de árbol pequeño": ["VE"],            // Venezuela (descriptivo)
+      "golden fruit": ["US", "GB"]                  // Inglés comercial
+    }
+  },
+
+  // Maíz (producto corn_018)
+  "corn": {
+    canonical: "corn",
+    productId: "corn_018",
+    synonyms: {
+      "maíz": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
+      "choclo": ["AR", "CL", "PE", "BO", "EC"],     // Cono Sur y Andes
+      "elote": ["MX", "GT", "SV", "HN"],            // México y Centroamérica
+      "jojoto": ["VE"],                             // Venezuela
+      "mazorca": ["CO", "VE", "PA"],                // Colombia, Venezuela, Panamá
+      "milho": ["BR"],                              // Brasil
+      "sara": ["PE", "BO"]                          // Perú, Bolivia (quechua)
+    }
+  },
+
+  // Mango (producto mango_019)
+  "mango": {
+    canonical: "mango",
+    productId: "mango_019",
+    synonyms: {
+      "mango": ["MX", "ES", "CO", "AR", "VE", "EC", "PE"], // Universal
+      "manga": ["BR"],                              // Brasil
+      "mangue": ["BR"]                              // Brasil (variante)
+    }
+  },
+
+  // Frijoles (producto beans_020)
+  "black beans": {
+    canonical: "black beans",
+    productId: "beans_020",
+    synonyms: {
+      "frijoles negros": ["MX", "CO", "VE", "GT"],  // México, Colombia, Venezuela, Guatemala
+      "judías negras": ["ES"],                      // España
+      "porotos negros": ["AR", "CL", "UY"],         // Cono Sur
+      "caraotas negras": ["VE"],                    // Venezuela
+      "habichuelas negras": ["DO", "PR", "CU"],     // Caribe
+      "feijão preto": ["BR"],                       // Brasil
+      "fréjoles negros": ["PE", "EC"]               // Perú, Ecuador
+    }
+  },
+
+  // Tomate (producto tomato_021)
+  "tomato": {
+    canonical: "tomato",
+    productId: "tomato_021",
+    synonyms: {
+      "tomate": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
+      "jitomate": ["MX"],                           // México (regional)
+      "tomatinho": ["BR"],                          // Brasil (pequeño)
+      "tomate cherry": ["AR", "CL", "UY"]           // Cono Sur (cherry)
+    }
+  },
+
+  // Papaya (producto papaya_022)
+  "papaya": {
+    canonical: "papaya",
+    productId: "papaya_022",
+    synonyms: {
+      "papaya": ["MX", "CO", "VE", "EC", "PE"],     // América Latina
+      "lechoza": ["VE"],                            // Venezuela
+      "fruta bomba": ["CU"],                        // Cuba
+      "mamão": ["BR"],                              // Brasil
+      "papaw": ["US"]                               // Estados Unidos (sur)
+    }
+  },
+
+  // Plátano macho (producto plantain_023)
+  "plantain": {
+    canonical: "plantain",
+    productId: "plantain_023",
+    synonyms: {
+      "plátano macho": ["MX", "CO", "VE", "EC"],    // América Latina
+      "plátano verde": ["PE", "BO"],                // Perú, Bolivia
+      "plátano de freír": ["ES"],                   // España
+      "banana da terra": ["BR"],                    // Brasil
+      "hartón": ["CO", "VE"]                        // Colombia, Venezuela (variedad)
+    }
+  },
+
+  // Cacao (producto cacao_024)
+  "raw cacao": {
+    canonical: "raw cacao",
+    productId: "cacao_024",
+    synonyms: {
+      "cacao crudo": ["MX", "ES", "CO", "VE"],      // Español
+      "cacao en grano": ["PE", "EC", "CO"],         // Países productores
+      "cacau": ["BR"],                              // Brasil
+      "theobroma": ["ES"]                           // España (científico)
+    }
+  },
+
+  // Piña (producto pineapple_025)
+  "pineapple": {
+    canonical: "pineapple",
+    productId: "pineapple_025",
+    synonyms: {
+      "piña": ["MX", "ES", "CO", "VE", "EC", "PE"], // Español
+      "ananá": ["AR", "UY", "PY"],                  // Cono Sur
+      "ananás": ["BR"],                             // Brasil
+      "abacaxi": ["BR"]                             // Brasil (más común)
+    }
+  },
+
+  // Yuca (producto yuca_026)
+  "cassava": {
+    canonical: "cassava",
+    productId: "yuca_026",
+    synonyms: {
+      "yuca": ["MX", "CO", "VE", "EC", "PE"],       // América Latina
+      "mandioca": ["AR", "UY", "PY", "BR"],         // Cono Sur y Brasil
+      "casabe": ["VE", "CO"],                       // Venezuela, Colombia (procesada)
+      "aipim": ["BR"],                              // Brasil (regional)
+      "macaxeira": ["BR"],                          // Brasil (noreste)
+      "guacamota": ["VE"]                           // Venezuela (regional)
+    }
+  }
+
   // Los siguientes productos tienen muchas variaciones regionales importantes
 };
 

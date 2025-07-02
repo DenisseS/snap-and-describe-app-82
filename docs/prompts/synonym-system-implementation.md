@@ -159,6 +159,62 @@ Búsqueda: "chia seeds" → Resultado: "Chia Seeds" (ID: chia_seeds_008, términ
 - **Regiones flexibles**: Soporte para códigos ISO y países personalizados
 - **Confidence scoring**: Sistema de confianza ajustable por sinónimo
 
+## Testing
+
+### Ejecución de Pruebas
+
+```bash
+# Ejecutar todas las pruebas
+npm run test
+
+# Ejecutar pruebas en modo watch
+npm run test:watch
+
+# Ejecutar pruebas con UI
+npm run test:ui
+
+# Ejecutar pruebas de sinónimos específicamente
+npm run test src/services/search/__tests__/SynonymService.test.ts
+npm run test src/services/search/strategies/__tests__/SynonymMatchStrategy.test.ts
+```
+
+### Cobertura de Pruebas
+
+Las pruebas cubren:
+
+#### SynonymService
+- ✅ Patrón Singleton
+- ✅ Búsqueda básica de sinónimos
+- ✅ Casos regionales (30+ sinónimos diferentes)
+- ✅ Manejo de errores tipográficos
+- ✅ Normalización de texto (acentos, mayúsculas)
+- ✅ Métodos helper (hasSynonyms, getCanonicalTerm, etc.)
+- ✅ Estadísticas del índice
+
+#### SynonymMatchStrategy
+- ✅ Configuración básica (tipo, prioridad)
+- ✅ Manejo de entrada vacía/inválida
+- ✅ Matching por sinónimos regionales
+- ✅ Cálculo de scores (ID directo vs. nombre vs. parcial)
+- ✅ Ordenamiento de resultados
+- ✅ Prevención de duplicados
+- ✅ Información de debug
+- ✅ Performance con listas grandes
+
+### Casos de Prueba Clave
+
+```typescript
+// Ejemplos de casos probados
+describe.each([
+  { synonym: 'palta', canonical: 'avocado', region: 'AR' },
+  { synonym: 'pochoclo', canonical: 'popcorn', region: 'AR' },
+  { synonym: 'canguil', canonical: 'popcorn', region: 'EC' },
+  { synonym: 'elote', canonical: 'corn', region: 'MX' }
+])('Regional Synonyms', ({ synonym, canonical, region }) => {
+  // Pruebas automáticas para cada sinónimo
+});
+```
+
 ## Próximos Pasos Sugeridos
 
 ### Fase 2B: UX Mejorado

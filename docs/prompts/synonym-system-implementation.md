@@ -36,29 +36,28 @@ interface SynonymEntry {
 }
 ```
 
-## Datos iniciales incluidos (ACTUALIZADO):
+## Datos iniciales incluidos (ACTUALIZADO - CORREGIDO CON IDs REALES):
 
-**Productos reales mapeados con IDs existentes:**
+**Productos reales mapeados con IDs existentes en la base de datos:**
 - **Aguacate** (`avocado_001`): palta (Cono Sur), aguacate (América Latina)
-- **Papa dulce** (`sweet_potato_006`): batata (Argentina), boniato (España), camote (México/Perú), ñame (Colombia/Venezuela)
-- **Papas fritas** (`chips_009`): papas fritas (América Latina), patatas fritas (España), papitas (Cono Sur)
 - **Brócoli** (`broccoli_001`): brócoli (español), brécol (España)
-- **Col rizada** (`kale_005`): col rizada, col crespa (Cono Sur), berza (España), acelga silvestre (Andes)
-- **Semillas de chía** (`chia_seeds_008`): semillas de chía, chía (Centroamérica)
-- **Yogur griego** (`greek_yogurt_007`): yogur/yogurt griego, yoghurt griego (Rioplatense)
-- **Quinoa** (`quinoa_002`): quinua (Andes), kinoa (Chile), quínoa (España)
-- **Arándanos** (`blueberries_005`): arándanos, arándanos azules (España), mirtilo (Rioplatense)
-- **Zanahoria** (`carrot_004`): zanahoria, carlota (Venezuela), daucus (España técnico)
-- **Plátano/Banana** (`banana_010`): banana (Cono Sur), banano (Andes), plátano (México/España), cambur (Venezuela), guineo (Caribe)
 - **Manzana** (`apple_002`): manzana (español), poma (Chile)
 - **Espinaca** (`spinach_003`): espinaca (español), espinafre (Brasil)
+- **Zanahoria** (`carrot_004`): zanahoria, carlota (Venezuela), daucus (España técnico)
+- **Col rizada** (`kale_005`): col rizada, col crespa (Cono Sur), berza (España), acelga silvestre (Andes)
 - **Coliflor** (`cauliflower_006`): coliflor (español), couve-flor (Brasil)
 - **Coles de Bruselas** (`brussels_007`): coles de bruselas, repollitas de bruselas (Cono Sur)
 - **Pera** (`pear_008`): pera (español), pêra (Brasil)
 - **Naranja** (`orange_009`): naranja (español), china (Caribe), laranja (Brasil)
+- **Plátano/Banana** (`banana_010`): banana (Cono Sur), banano (Andes), plátano (México/España), cambur (Venezuela), guineo (Caribe)
+- **Quinoa** (`quinoa_002`): quinua (Andes), kinoa (Chile), quínoa (España)
 - **Salmón** (`salmon_003`): salmón (español), salmão (Brasil)
 - **Almendras** (`almonds_004`): almendras (español), amêndoas (Brasil)
-- **Palomitas** (usando `chips_009`): palomitas de maíz, pochoclo (Argentina), canguil (Ecuador), cotufas (Venezuela), crispetas (Colombia)
+- **Arándanos** (`blueberries_005`): arándanos, arándanos azules (España), mirtilo (Rioplatense)
+- **Papa dulce** (`sweet_potato_006`): batata (Argentina), boniato (España), camote (México/Perú), ñame (Colombia/Venezuela)
+- **Yogur griego** (`greek_yogurt_007`): yogur/yogurt griego, yoghurt griego (Rioplatense), iogurte grego (Brasil)
+- **Semillas de chía** (`chia_seeds_008`): semillas de chía, chía (Centroamérica), sementes de chia (Brasil)
+- **Papas fritas** (`chips_009`): papas fritas (América Latina), patatas fritas (España), papitas (Cono Sur), batata frita (Brasil)
 
 **Traducciones inglés US/UK incluidas para todos los productos**
 

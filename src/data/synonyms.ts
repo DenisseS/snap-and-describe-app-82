@@ -28,40 +28,15 @@ export interface SynonymDatabase {
 }
 
 // Base de datos inicial de sinónimos con información regional
-// Mapea a productos existentes usando sus IDs para mantener compatibilidad
+// Mapea a productos existentes usando sus IDs reales para mantener compatibilidad
 const synonymsData = {
   // Aguacate (producto avocado_001)
   "avocado": {
     canonical: "avocado",
-    productId: "avocado_001", // ID real del producto
+    productId: "avocado_001",
     synonyms: {
       "palta": ["AR", "CL", "PE", "UY"],  // Cono Sur
       "aguacate": ["MX", "ES", "CO", "VE", "EC"] // América Latina
-    }
-  },
-  
-  // Papa dulce (producto sweet_potato_006)
-  "sweet potato": {
-    canonical: "sweet potato",
-    productId: "sweet_potato_006",
-    synonyms: {
-      "batata": ["AR", "UY"],     // Argentina, Uruguay
-      "boniato": ["ES"],          // España
-      "camote": ["MX", "PE"],     // México, Perú
-      "ñame": ["CO", "VE"],       // Colombia, Venezuela
-      "papa dulce": ["CL", "EC"]  // Chile, Ecuador
-    }
-  },
-  
-  // Papas fritas (producto chips_009)
-  "potato chips": {
-    canonical: "potato chips",
-    productId: "chips_009",
-    synonyms: {
-      "papas fritas": ["MX", "CO", "VE", "EC"], // América Latina
-      "patatas fritas": ["ES"],                  // España
-      "papitas": ["AR", "CL", "UY"],            // Cono Sur
-      "chips": ["US", "GB"]                     // Inglés coloquial
     }
   },
   
@@ -72,86 +47,6 @@ const synonymsData = {
     synonyms: {
       "brócoli": ["MX", "ES", "CO", "AR"], // Español
       "brécol": ["ES"]                      // España (variante)
-    }
-  },
-  
-  // Col rizada (producto kale_005)
-  "kale": {
-    canonical: "kale",
-    productId: "kale_005", 
-    synonyms: {
-      "col rizada": ["ES", "MX", "CO"],    // Español general
-      "col crespa": ["AR", "CL"],          // Cono Sur
-      "berza": ["ES"],                     // España (regional)
-      "acelga silvestre": ["EC", "PE"]     // Andes
-    }
-  },
-  
-  // Semillas de chía (producto chia_seeds_008)
-  "chia seeds": {
-    canonical: "chia seeds",
-    productId: "chia_seeds_008",
-    synonyms: {
-      "semillas de chía": ["MX", "ES", "CO", "AR"], // Español
-      "chía": ["MX", "GT", "SV"]                     // Centroamérica (nombre corto)
-    }
-  },
-  
-  // Yogur griego (producto greek_yogurt_007)
-  "greek yogurt": {
-    canonical: "greek yogurt", 
-    productId: "greek_yogurt_007",
-    synonyms: {
-      "yogur griego": ["ES", "MX", "CO", "AR"], // Español
-      "yogurt griego": ["MX", "VE"],           // Variante ortográfica
-      "yoghurt griego": ["AR", "UY"]           // Rioplatense
-    }
-  },
-  
-  // Quinoa (producto quinoa_002)
-  "quinoa": {
-    canonical: "quinoa",
-    productId: "quinoa_002", 
-    synonyms: {
-      "quinua": ["PE", "BO", "EC"],    // Andes (forma original)
-      "kinoa": ["CL"],                 // Chile
-      "quínoa": ["ES"]                 // España (con tilde)
-    }
-  },
-  
-  // Arándanos (producto blueberries_005)
-  "blueberries": {
-    canonical: "blueberries",
-    productId: "blueberries_005",
-    synonyms: {
-      "arándanos": ["ES", "MX", "CO", "AR"],   // Español general
-      "arándanos azules": ["ES"],              // España específico
-      "mirtilo": ["AR", "UY"],                 // Rioplatense
-      "blueberry": ["US", "GB"]                // Inglés singular
-    }
-  },
-  
-  // Zanahoria (producto carrot_004)
-  "carrot": {
-    canonical: "carrot",
-    productId: "carrot_004",
-    synonyms: {
-      "zanahoria": ["ES", "MX", "CO", "AR"],   // Español
-      "carlota": ["VE"],                       // Venezuela (regional)
-      "daucus": ["ES"]                         // España (técnico)
-    }
-  },
-
-  // Plátano/Banana (producto banana_010)
-  "banana": {
-    canonical: "banana",
-    productId: "banana_010",
-    synonyms: {
-      "banana": ["AR", "UY", "PY"],                   // Cono Sur
-      "banano": ["CO", "VE", "EC", "PE"],            // América del Norte/Andes
-      "plátano": ["MX", "ES", "GT", "SV", "HN"],     // México, España, Centroamérica
-      "cambur": ["VE"],                               // Venezuela (regional)
-      "guineo": ["DO", "PR", "CU"]                   // Caribe hispanohablante
     }
   },
 
@@ -172,6 +67,29 @@ const synonymsData = {
     synonyms: {
       "espinaca": ["MX", "ES", "CO", "AR", "VE", "EC"], // Español universal
       "espinafre": ["BR"]                                // Brasil
+    }
+  },
+
+  // Zanahoria (producto carrot_004)
+  "carrot": {
+    canonical: "carrot",
+    productId: "carrot_004",
+    synonyms: {
+      "zanahoria": ["ES", "MX", "CO", "AR"],   // Español
+      "carlota": ["VE"],                       // Venezuela (regional)
+      "daucus": ["ES"]                         // España (técnico)
+    }
+  },
+
+  // Col rizada (producto kale_005)
+  "kale": {
+    canonical: "kale",
+    productId: "kale_005", 
+    synonyms: {
+      "col rizada": ["ES", "MX", "CO"],    // Español general
+      "col crespa": ["AR", "CL"],          // Cono Sur
+      "berza": ["ES"],                     // España (regional)
+      "acelga silvestre": ["EC", "PE"]     // Andes
     }
   },
 
@@ -217,6 +135,30 @@ const synonymsData = {
     }
   },
 
+  // Plátano/Banana (producto banana_010)
+  "banana": {
+    canonical: "banana",
+    productId: "banana_010",
+    synonyms: {
+      "banana": ["AR", "UY", "PY"],                   // Cono Sur
+      "banano": ["CO", "VE", "EC", "PE"],            // América del Norte/Andes
+      "plátano": ["MX", "ES", "GT", "SV", "HN"],     // México, España, Centroamérica
+      "cambur": ["VE"],                               // Venezuela (regional)
+      "guineo": ["DO", "PR", "CU"]                   // Caribe hispanohablante
+    }
+  },
+
+  // Quinoa (producto quinoa_002)
+  "quinoa": {
+    canonical: "quinoa",
+    productId: "quinoa_002", 
+    synonyms: {
+      "quinua": ["PE", "BO", "EC"],    // Andes (forma original)
+      "kinoa": ["CL"],                 // Chile
+      "quínoa": ["ES"]                 // España (con tilde)
+    }
+  },
+
   // Salmón (producto salmon_003)
   "salmon": {
     canonical: "salmon",
@@ -237,26 +179,70 @@ const synonymsData = {
     }
   },
 
-  // Palomitas de maíz (usando chips como aproximación)
-  "popcorn": {
-    canonical: "popcorn",
-    productId: "chips_009", // Usando el producto de papas fritas como aproximación
+  // Arándanos (producto blueberries_005)
+  "blueberries": {
+    canonical: "blueberries",
+    productId: "blueberries_005",
     synonyms: {
-      "palomitas de maíz": ["MX", "ES", "CO", "VE"], // Genérico español
-      "palomitas": ["MX", "ES"],                     // Abreviado México/España
-      "pochoclo": ["AR", "UY"],                      // Rioplatense
-      "canguil": ["EC", "PE"],                       // Ecuador, Perú
-      "cotufas": ["VE"],                             // Venezuela
-      "crispetas": ["CO"],                           // Colombia
-      "pororó": ["BR"],                              // Brasil
-      "rositas de maíz": ["GT", "SV", "HN"]         // Centroamérica
+      "arándanos": ["ES", "MX", "CO", "AR"],   // Español general
+      "arándanos azules": ["ES"],              // España específico
+      "mirtilo": ["AR", "UY"],                 // Rioplatense
+      "blueberry": ["US", "GB"]                // Inglés singular
+    }
+  },
+
+  // Papa dulce (producto sweet_potato_006)
+  "sweet potato": {
+    canonical: "sweet potato",
+    productId: "sweet_potato_006",
+    synonyms: {
+      "batata": ["AR", "UY"],     // Argentina, Uruguay
+      "boniato": ["ES"],          // España
+      "camote": ["MX", "PE"],     // México, Perú
+      "ñame": ["CO", "VE"],       // Colombia, Venezuela
+      "papa dulce": ["CL", "EC"], // Chile, Ecuador
+      "batatinha doce": ["BR"]    // Brasil
+    }
+  },
+
+  // Yogur griego (producto greek_yogurt_007)
+  "greek yogurt": {
+    canonical: "greek yogurt", 
+    productId: "greek_yogurt_007",
+    synonyms: {
+      "yogur griego": ["ES", "MX", "CO", "AR"], // Español
+      "yogurt griego": ["MX", "VE"],           // Variante ortográfica
+      "yoghurt griego": ["AR", "UY"],          // Rioplatense
+      "iogurte grego": ["BR"]                  // Brasil
+    }
+  },
+
+  // Semillas de chía (producto chia_seeds_008)
+  "chia seeds": {
+    canonical: "chia seeds",
+    productId: "chia_seeds_008",
+    synonyms: {
+      "semillas de chía": ["MX", "ES", "CO", "AR"], // Español
+      "chía": ["MX", "GT", "SV"],                   // Centroamérica (nombre corto)
+      "sementes de chia": ["BR"]                    // Brasil
+    }
+  },
+
+  // Papas fritas (producto chips_009)
+  "potato chips": {
+    canonical: "potato chips",
+    productId: "chips_009",
+    synonyms: {
+      "papas fritas": ["MX", "CO", "VE", "EC"], // América Latina
+      "patatas fritas": ["ES"],                  // España
+      "papitas": ["AR", "CL", "UY"],            // Cono Sur
+      "chips": ["US", "GB"],                    // Inglés coloquial
+      "batata frita": ["BR"]                    // Brasil
     }
   }
 
-  // NOTA: Se quitaron productos que no existen en la base de datos actual:
-  // corn_001, beans_001, tomato_001, papaya_001, pineapple_001, watermelon_001, 
-  // lulo_001, passion_fruit_001, guava_001
-  // Estos se pueden agregar cuando se expanda la base de productos
+  // PRODUCTOS AGREGADOS CON MUCHOS REGIONALISMOS:
+  // Los siguientes productos tienen muchas variaciones regionales importantes
 };
 
 // Construir índice de búsqueda optimizado

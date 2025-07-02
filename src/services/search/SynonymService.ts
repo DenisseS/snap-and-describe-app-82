@@ -43,16 +43,21 @@ export class SynonymService {
    */
   findSynonyms(term: string): SynonymMatch[] {
     if (!term || term.trim().length === 0) {
+      console.log('SynonymService: Empty term provided');
       return [];
     }
 
     const normalizedTerm = TextNormalizationService.normalize(term, {}, 'standard');
+    console.log(`SynonymService: Searching for "${term}" -> normalized: "${normalizedTerm}"`);
+    console.log('SynonymService: Available terms in index:', Object.keys(this.searchIndex).slice(0, 10));
+    
     const matches: SynonymMatch[] = [];
 
     // Búsqueda directa O(1)
     const synonymEntry = this.searchIndex[normalizedTerm];
     
     if (synonymEntry) {
+      console.log(`SynonymService: Found synonym match for "${normalizedTerm}":`, synonymEntry);
       matches.push({
         canonicalTerm: synonymEntry.canonical,
         originalTerm: term,
@@ -60,8 +65,11 @@ export class SynonymService {
         confidence: synonymEntry.confidence,
         regionInfo: synonymEntry.regionInfo
       });
+    } else {
+      console.log(`SynonymService: No synonym found for "${normalizedTerm}"`);
     }
 
+    console.log(`SynonymService: Returning ${matches.length} matches`);
     return matches;
   }
 

@@ -4,7 +4,7 @@ import { Searchable } from '@/types/search';
 export interface SearchResult<T extends Searchable> {
   item: T;
   score: number;
-  matchType: 'exact' | 'fuzzy' | 'partial';
+  matchType: 'exact' | 'fuzzy' | 'partial' | 'synonym';
   matchedTerms: string[];
   originalQuery: string;
 }

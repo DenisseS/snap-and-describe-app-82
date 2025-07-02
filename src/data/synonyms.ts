@@ -5,8 +5,8 @@
 
 export interface SynonymEntry {
   canonical: string;           // Término genérico/fallback
-  productId: string;          // ID del producto en la base de datos
-  confidence: number;         // 0.9 para sinónimos directos
+  productId: string;          // ID del producto real en la base de datos
+  confidence: number;         // 1.0 para término principal, 0.9 para sinónimos
   regionInfo?: {
     region: string;           // Código ISO: "MX", "ES", "AR", "CO", "EC"
     country: string;          // Nombre completo del país
@@ -28,114 +28,149 @@ export interface SynonymDatabase {
 }
 
 // Base de datos inicial de sinónimos con información regional
+// Mapea a productos existentes usando sus IDs para mantener compatibilidad
 const synonymsData = {
-  // Maíz y derivados
-  "palomitas de maíz": {
-    canonical: "palomitas de maíz",
-    synonyms: {
-      "canguil": ["EC"],           // Ecuador
-      "pochoclo": ["AR", "UY"],    // Argentina, Uruguay  
-      "pororó": ["PY"],            // Paraguay
-      "crispetas": ["CO"],         // Colombia
-      "cotufas": ["VE"],           // Venezuela
-      "rositas": ["MX"],           // México (algunas regiones)
-      "popcorn": ["US", "GB"]      // Inglés
-    }
-  },
-  
-  // Aguacate
-  "aguacate": {
-    canonical: "aguacate", 
+  // Aguacate (producto avocado_001)
+  "avocado": {
+    canonical: "avocado",
+    productId: "avocado_001", // ID real del producto
     synonyms: {
       "palta": ["AR", "CL", "PE", "UY"],  // Cono Sur
-      "avocado": ["US", "GB"]             // Inglés
+      "aguacate": ["MX", "ES", "CO", "VE", "EC"] // América Latina
     }
   },
   
-  // Papas
-  "papa": {
-    canonical: "papa",
+  // Papa dulce (producto sweet_potato_006)
+  "sweet potato": {
+    canonical: "sweet potato",
+    productId: "sweet_potato_006",
     synonyms: {
-      "patata": ["ES"],           // España
-      "potato": ["US", "GB"]      // Inglés
+      "batata": ["AR", "UY"],     // Argentina, Uruguay
+      "boniato": ["ES"],          // España
+      "camote": ["MX", "PE"],     // México, Perú
+      "ñame": ["CO", "VE"],       // Colombia, Venezuela
+      "papa dulce": ["CL", "EC"]  // Chile, Ecuador
     }
   },
   
-  // Frijoles
-  "frijol": {
-    canonical: "frijol",
+  // Papas fritas (producto chips_009)
+  "potato chips": {
+    canonical: "potato chips",
+    productId: "chips_009",
     synonyms: {
-      "judía": ["ES"],            // España
-      "alubia": ["ES"],           // España (Norte)
-      "poroto": ["AR", "CL", "UY"], // Cono Sur
-      "caraota": ["VE"],          // Venezuela
-      "habichuela": ["CO", "DO"], // Colombia, República Dominicana
-      "bean": ["US", "GB"]        // Inglés
+      "papas fritas": ["MX", "CO", "VE", "EC"], // América Latina
+      "patatas fritas": ["ES"],                  // España
+      "papitas": ["AR", "CL", "UY"],            // Cono Sur
+      "chips": ["US", "GB"]                     // Inglés coloquial
     }
   },
   
-  // Piña
-  "piña": {
-    canonical: "piña",
+  // Brócoli (producto broccoli_001)  
+  "broccoli": {
+    canonical: "broccoli",
+    productId: "broccoli_001",
     synonyms: {
-      "ananá": ["AR", "PY", "UY"], // Cono Sur
-      "abacaxi": ["BR"],           // Brasil (portugués, pero común en frontera)
-      "pineapple": ["US", "GB"]    // Inglés
+      "brócoli": ["MX", "ES", "CO", "AR"], // Español
+      "brécol": ["ES"]                      // España (variante)
     }
   },
   
-  // Durazno
-  "durazno": {
-    canonical: "durazno",
+  // Col rizada (producto kale_005)
+  "kale": {
+    canonical: "kale",
+    productId: "kale_005", 
     synonyms: {
-      "melocotón": ["ES"],        // España
-      "pérsico": ["AR"],          // Argentina (formal)
-      "peach": ["US", "GB"]       // Inglés
+      "col rizada": ["ES", "MX", "CO"],    // Español general
+      "col crespa": ["AR", "CL"],          // Cono Sur
+      "berza": ["ES"],                     // España (regional)
+      "acelga silvestre": ["EC", "PE"]     // Andes
     }
   },
   
-  // Fresa
-  "fresa": {
-    canonical: "fresa",
+  // Semillas de chía (producto chia_seeds_008)
+  "chia seeds": {
+    canonical: "chia seeds",
+    productId: "chia_seeds_008",
     synonyms: {
-      "frutilla": ["AR", "CL", "UY"], // Cono Sur
-      "strawberry": ["US", "GB"]      // Inglés
+      "semillas de chía": ["MX", "ES", "CO", "AR"], // Español
+      "chía": ["MX", "GT", "SV"]                     // Centroamérica (nombre corto)
     }
   },
   
-  // Maíz tierno
-  "maíz": {
-    canonical: "maíz",
+  // Yogur griego (producto greek_yogurt_007)
+  "greek yogurt": {
+    canonical: "greek yogurt", 
+    productId: "greek_yogurt_007",
     synonyms: {
-      "choclo": ["AR", "CL", "PE", "EC"], // Andes y Cono Sur
-      "elote": ["MX", "GT", "SV"],        // México y Centroamérica
-      "jojoto": ["VE"],                   // Venezuela
-      "mazorca": ["CO"],                  // Colombia
-      "corn": ["US", "GB"]                // Inglés
+      "yogur griego": ["ES", "MX", "CO", "AR"], // Español
+      "yogurt griego": ["MX", "VE"],           // Variante ortográfica
+      "yoghurt griego": ["AR", "UY"]           // Rioplatense
     }
   },
   
-  // Guisantes
-  "guisante": {
-    canonical: "guisante",
+  // Quinoa (producto quinoa_002)
+  "quinoa": {
+    canonical: "quinoa",
+    productId: "quinoa_002", 
     synonyms: {
-      "chícharo": ["MX"],         // México
-      "arveja": ["AR", "CO", "PE"], // Varios países
-      "petit pois": ["ES"],       // España (galicismo)
-      "pea": ["US", "GB"]         // Inglés
+      "quinua": ["PE", "BO", "EC"],    // Andes (forma original)
+      "kinoa": ["CL"],                 // Chile
+      "quínoa": ["ES"]                 // España (con tilde)
     }
   },
   
-  // Judías verdes
-  "judía verde": {
-    canonical: "judía verde",
+  // Arándanos (producto blueberries_005)
+  "blueberries": {
+    canonical: "blueberries",
+    productId: "blueberries_005",
     synonyms: {
-      "ejote": ["MX"],            // México
-      "vainita": ["PE", "EC"],    // Perú, Ecuador
-      "habichuela tierna": ["CO"], // Colombia
-      "poroto verde": ["AR", "CL"], // Cono Sur
-      "green bean": ["US"],       // Inglés US
-      "french bean": ["GB"]       // Inglés UK
+      "arándanos": ["ES", "MX", "CO", "AR"],   // Español general
+      "arándanos azules": ["ES"],              // España específico
+      "mirtilo": ["AR", "UY"],                 // Rioplatense
+      "blueberry": ["US", "GB"]                // Inglés singular
+    }
+  },
+  
+  // Zanahoria (producto carrot_004)
+  "carrot": {
+    canonical: "carrot",
+    productId: "carrot_004",
+    synonyms: {
+      "zanahoria": ["ES", "MX", "CO", "AR"],   // Español
+      "carlota": ["VE"],                       // Venezuela (regional)
+      "daucus": ["ES"]                         // España (técnico)
+    }
+  },
+  
+  // Frutas exóticas adicionales
+  "lulo": {
+    canonical: "lulo",
+    productId: "exotic_lulo_001", // ID hipotético para producto futuro
+    synonyms: {
+      "naranjilla": ["EC", "PE"],              // Ecuador, Perú
+      "obando": ["CO"],                        // Colombia (regional)
+      "tomate de árbol pequeño": ["VE"]        // Venezuela (descripción)
+    }
+  },
+  
+  "maracuyá": {
+    canonical: "maracuyá", 
+    productId: "exotic_passion_001", // ID hipotético
+    synonyms: {
+      "parchita": ["VE"],                      // Venezuela
+      "chinola": ["DO"],                       // República Dominicana
+      "fruta de la pasión": ["ES"],            // España
+      "passion fruit": ["US", "GB"]            // Inglés
+    }
+  },
+  
+  "guayaba": {
+    canonical: "guayaba",
+    productId: "exotic_guava_001", // ID hipotético  
+    synonyms: {
+      "guava": ["US", "GB"],                   // Inglés
+      "arrayana": ["CO", "VE"],                // Colombia, Venezuela (regional)
+      "luma": ["CL"]                           // Chile (regional)
     }
   }
 };
@@ -144,12 +179,10 @@ const synonymsData = {
 function buildSearchIndex(): SynonymDatabase {
   const searchIndex: { [key: string]: SynonymEntry } = {};
   const metadata: SynonymDatabase['metadata'] = {};
-
-  // Generar IDs únicos para productos
-  let productCounter = 1;
   
   Object.entries(synonymsData).forEach(([canonical, data]) => {
-    const productId = `product_${productCounter++}`;
+    // Usar productId del producto real si existe, sino generar uno temporal
+    const productId = data.productId || `temp_${canonical.replace(/\s+/g, '_')}`;
     
     // Agregar término canónico al índice
     searchIndex[canonical.toLowerCase()] = {

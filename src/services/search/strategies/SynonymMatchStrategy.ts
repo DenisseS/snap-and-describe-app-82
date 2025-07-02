@@ -74,22 +74,32 @@ export class SynonymMatchStrategy<T extends Searchable> implements MatchStrategy
 
         // Solo agregar si encontramos un match válido
         if (matchScore > 0) {
+          // Verificar si el item coincide con el productId del sinónimo para mayor precisión
+          const synonymProductId = this.synonymService.findSynonyms(query)[0]?.productId;
+          let finalScore = matchScore;
+          
+          // Boost si el productId coincide exactamente (producto real vs sinónimo)
+          if (synonymProductId && item.id === synonymProductId) {
+            finalScore = Math.min(matchScore * 1.1, 1.0); // Boost del 10% sin exceder 1.0
+          }
+          
           // Evitar duplicados del mismo item
           const existingResult = results.find(r => r.item.id === item.id);
           if (!existingResult) {
             results.push({
               item,
-              score: matchScore,
-              matchType: 'partial', // Los sinónimos son matches parciales conceptualmente
+              score: finalScore,
+              matchType: 'synonym', // Tipo específico para sinónimos
               matchedTerms: [
                 ...matchedTerms,
                 `${synonymMatch.originalTerm} → ${synonymMatch.canonicalTerm}`
               ],
               originalQuery: query
             });
-          } else if (existingResult.score < matchScore) {
+          } else if (existingResult.score < finalScore) {
             // Actualizar con mejor score si encontramos uno mejor
-            existingResult.score = matchScore;
+            existingResult.score = finalScore;
+            existingResult.matchType = 'synonym';
             existingResult.matchedTerms.push(`${synonymMatch.originalTerm} → ${synonymMatch.canonicalTerm}`);
           }
         }

@@ -9,6 +9,7 @@ import { TextNormalizationService } from './TextNormalizationService';
 export interface SynonymMatch {
   canonicalTerm: string;    // Término genérico
   originalTerm: string;     // Término buscado
+  productId: string;        // ID del producto real para matching preciso
   confidence: number;       // Score de confianza
   regionInfo?: {           // Información regional opcional
     region: string;
@@ -55,6 +56,7 @@ export class SynonymService {
       matches.push({
         canonicalTerm: synonymEntry.canonical,
         originalTerm: term,
+        productId: synonymEntry.productId,
         confidence: synonymEntry.confidence,
         regionInfo: synonymEntry.regionInfo
       });
@@ -119,6 +121,7 @@ export class SynonymService {
         variations.push({
           canonicalTerm: entry.canonical,
           originalTerm: term,
+          productId: entry.productId,
           confidence: entry.confidence,
           regionInfo: entry.regionInfo
         });

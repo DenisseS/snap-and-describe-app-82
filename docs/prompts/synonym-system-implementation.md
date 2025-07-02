@@ -2,13 +2,13 @@
 
 ## Resumen de la Implementación
 
-Se implementó un sistema de sinónimos regionales agnóstico al usuario que mapea términos regionales a términos genéricos/fallback, optimizado para búsqueda O(1) sin afectar el tiempo de búsqueda.
+Se implementó un sistema de sinónimos regionales agnóstico al usuario que mapea términos regionales a términos genéricos/fallback, optimizado para búsqueda O(1) sin afectar el tiempo de búsqueda. El sistema es completamente compatible con el sistema de traducciones existente y mapea directamente a productos reales usando sus IDs.
 
 ## Arquitectura Implementada
 
 ### 1. Base de Datos de Sinónimos (`src/data/synonyms.ts`)
 
-**Estructura optimizada para búsqueda O(1):**
+**Estructura optimizada para búsqueda O(1) con compatibilidad de productos:**
 
 ```typescript
 interface SynonymDatabase {
@@ -26,8 +26,8 @@ interface SynonymDatabase {
 
 interface SynonymEntry {
   canonical: string;           // Término genérico/fallback
-  productId: string;          // ID del producto
-  confidence: number;         // 0.9 para sinónimos directos
+  productId: string;          // ID del producto real en la base de datos
+  confidence: number;         // 1.0 para término principal, 0.9 para sinónimos
   regionInfo?: {
     region: string;           // "MX", "ES", "AR", "CO", "EC"
     country: string;          // Nombre completo del país
@@ -36,18 +36,26 @@ interface SynonymEntry {
 }
 ```
 
-**Datos iniciales incluidos:**
-- **Palomitas de maíz**: canguil (Ecuador), pochoclo (Argentina), crispetas (Colombia), cotufas (Venezuela), etc.
-- **Aguacate**: palta (Cono Sur)
-- **Papa**: patata (España)
-- **Frijol**: judía/alubia (España), poroto (Cono Sur), caraota (Venezuela), habichuela (Colombia)
-- **Piña**: ananá (Argentina, Paraguay, Uruguay)
-- **Durazno**: melocotón (España)
-- **Fresa**: frutilla (Cono Sur)
-- **Maíz**: choclo (Andes), elote (México), jojoto (Venezuela), mazorca (Colombia)
-- **Guisante**: chícharo (México), arveja (varios países)
-- **Judía verde**: ejote (México), vainita (Perú, Ecuador), habichuela tierna (Colombia), poroto verde (Cono Sur)
-- **Traducciones inglés US/UK incluidas**
+## Datos iniciales incluidos:
+
+**Productos reales mapeados con IDs:**
+- **Aguacate** (`avocado_001`): palta (Cono Sur), aguacate (América Latina)
+- **Papa dulce** (`sweet_potato_006`): batata (Argentina), boniato (España), camote (México/Perú), ñame (Colombia/Venezuela)
+- **Papas fritas** (`chips_009`): papas fritas (América Latina), patatas fritas (España), papitas (Cono Sur)
+- **Brócoli** (`broccoli_001`): brócoli (español), brécol (España)
+- **Col rizada** (`kale_005`): col rizada, col crespa (Cono Sur), berza (España), acelga silvestre (Andes)
+- **Semillas de chía** (`chia_seeds_008`): semillas de chía, chía (Centroamérica)
+- **Yogur griego** (`greek_yogurt_007`): yogur/yogurt griego, yoghurt griego (Rioplatense)
+- **Quinoa** (`quinoa_002`): quinua (Andes), kinoa (Chile), quínoa (España)
+- **Arándanos** (`blueberries_005`): arándanos, arándanos azules (España), mirtilo (Rioplatense)
+- **Zanahoria** (`carrot_004`): zanahoria, carlota (Venezuela), daucus (España técnico)
+
+**Frutas exóticas (IDs temporales para futura expansión):**
+- **Lulo**: naranjilla (Ecuador/Perú), obando (Colombia), tomate de árbol pequeño (Venezuela)
+- **Maracuyá**: parchita (Venezuela), chinola (República Dominicana), fruta de la pasión (España)
+- **Guayaba**: guava (inglés), arrayana (Colombia/Venezuela), luma (Chile)
+
+**Traducciones inglés US/UK incluidas para todos los productos**
 
 ### 2. Servicio de Sinónimos (`src/services/search/SynonymService.ts`)
 
@@ -55,11 +63,12 @@ interface SynonymEntry {
 - **Singleton pattern** para optimizar memoria
 - **Búsqueda O(1)** usando índice pre-computado
 - **Agnóstico al usuario** - no depende de userLocale
+- **Compatible con productId** - retorna ID del producto real
 - **Métodos utilitarios** para debugging y gestión
 
 **API principal:**
 ```typescript
-findSynonyms(term: string): SynonymMatch[]           // Búsqueda O(1)
+findSynonyms(term: string): SynonymMatch[]           // Búsqueda O(1) con productId
 hasSynonyms(term: string): boolean                   // Verificación rápida
 getCanonicalTerm(term: string): string | null        // Obtener término genérico
 getRegionInfo(term: string): RegionInfo | null       // Info regional
@@ -71,14 +80,17 @@ findAllVariations(canonicalTerm: string): SynonymMatch[] // Todas las variacione
 **Integración en cadena de responsabilidad:**
 - **Prioridad 85**: Entre starts_with (90) y fuzzy (80)
 - **Scoring inteligente**: Basado en confianza del sinónimo y tipo de match
+- **Boost de precisión**: +10% score si productId coincide exactamente
 - **Evita duplicados**: Filtra resultados duplicados del mismo item
+- **Match type específico**: `matchType: 'synonym'` para identificación
 - **Debug info**: Información detallada para desarrollo
 
 **Flujo de matching:**
-1. Buscar sinónimos del término (`canguil` → `palomitas de maíz`)
+1. Buscar sinónimos del término (`palta` → `avocado` + productId: `avocado_001`)
 2. Buscar productos que coincidan con término canónico
-3. Asignar scores basados en tipo de coincidencia:
-   - Exacto: `confidence * 0.95`
+3. Verificar coincidencia con productId para boost de precisión
+4. Asignar scores basados en tipo de coincidencia:
+   - Exacto: `confidence * 0.95 * 1.1` (si productId coincide)
    - Starts with: `confidence * (0.85 + lengthRatio * 0.1)`
    - Parcial: `confidence * (0.7 + lengthRatio * 0.15) * positionPenalty`
    - Categoría: `confidence * 0.8`
@@ -86,34 +98,34 @@ findAllVariations(canonicalTerm: string): SynonymMatch[] // Todas las variacione
 ### 4. Integración con Motor Híbrido (`src/services/search/HybridSearchEngine.ts`)
 
 **Orden de ejecución actualizado:**
-1. **ExactMatchStrategy** (prioridad: 100) - "aguacate" exacto
-2. **StartsWithMatchStrategy** (prioridad: 90) - "agua..." → "aguacate"  
-3. **SynonymMatchStrategy** (prioridad: 85) - "palta" → "aguacate"
-4. **FuzzyMatchStrategy** (prioridad: 80) - "aguacate" → "awacate"
-5. **ContainsMatchStrategy** (prioridad: 70) - "...cate" → "aguacate"
+1. **ExactMatchStrategy** (prioridad: 100) - "avocado" exacto
+2. **StartsWithMatchStrategy** (prioridad: 90) - "avo..." → "avocado"  
+3. **SynonymMatchStrategy** (prioridad: 85) - "palta" → "avocado" (productId: avocado_001)
+4. **FuzzyMatchStrategy** (prioridad: 80) - "avocado" → "awacate"
+5. **ContainsMatchStrategy** (prioridad: 70) - "...cado" → "avocado"
 
 ## Casos de Uso Validados
 
-### Sinónimos Regionales
+### Sinónimos Regionales Precisos
 ```
-Búsqueda: "canguil" → Resultado: "palomitas de maíz" (Ecuador)
-Búsqueda: "pochoclo" → Resultado: "palomitas de maíz" (Argentina)
-Búsqueda: "palta" → Resultado: "aguacate" (Cono Sur)
-Búsqueda: "patata" → Resultado: "papa" (España)
+Búsqueda: "palta" → Resultado: "Avocado" (ID: avocado_001, boost score)
+Búsqueda: "batata" → Resultado: "Sweet Potato" (ID: sweet_potato_006, boost score)
+Búsqueda: "papitas" → Resultado: "Potato Chips" (ID: chips_009, boost score)
+Búsqueda: "quinua" → Resultado: "Quinoa" (ID: quinoa_002, boost score)
 ```
 
 ### Traducciones
 ```
-Búsqueda: "popcorn" → Resultado: "palomitas de maíz" (Inglés)
-Búsqueda: "avocado" → Resultado: "aguacate" (Inglés)
-Búsqueda: "green bean" → Resultado: "judía verde" (Inglés US)
-Búsqueda: "french bean" → Resultado: "judía verde" (Inglés UK)
+Búsqueda: "avocado" → Resultado: "Avocado" (ID: avocado_001, término canónico)
+Búsqueda: "kale" → Resultado: "Kale" (ID: kale_005, término canónico)
+Búsqueda: "chia seeds" → Resultado: "Chia Seeds" (ID: chia_seeds_008, término canónico)
 ```
 
 ### Preservación de Información Regional
 - **Mantenido**: Información sobre qué término pertenece a qué región
 - **Performance**: Sin impacto en tiempo de búsqueda (O(1))
 - **Escalabilidad**: Fácil agregar nuevos sinónimos sin reestructurar
+- **Precisión**: Boost automático cuando productId coincide exactamente
 
 ## Características Técnicas
 
@@ -122,26 +134,35 @@ Búsqueda: "french bean" → Resultado: "judía verde" (Inglés UK)
 - **Memoria optimizada**: Singleton service, índice compartido
 - **Sin duplicación**: Estructura eficiente sin redundancia manual
 - **Lazy loading**: Servicio se inicializa solo cuando se necesita
+- **Boost inteligente**: Mayor precisión sin costo computacional
+
+### Compatibilidad
+
+#### Sistema Híbrido con Traducciones Existentes
+- **Compatible 100% con sistema i18n**: Mantiene funcionalidad de `useProductTranslation` y `nameKey`
+- **IDs de productos reales**: Mapea sinónimos a productos existentes usando sus IDs reales
+- **Boost de precisión**: Sinónimos que coinciden con productId obtienen mayor score
+- **Agnóstico al usuario**: No depende de configuración regional del usuario
+- **Degradación elegante**: Si falla sinónimos, continúa con otras estrategias
+- **Match type específico**: Los resultados de sinónimos se marcan como `matchType: 'synonym'`
+- **Debugging completo**: Logs y métodos para monitoreo
+- **Testing ready**: Métodos utilitarios para validación
 
 ### Extensibilidad
 - **Fácil agregar sinónimos**: Solo modificar `synonymsData` en `synonyms.ts`
+- **Productos reales**: Usar IDs existentes o temporales para futuras expansiones
 - **Soporte multi-idioma**: Estructura preparada para cualquier idioma
 - **Regiones flexibles**: Soporte para códigos ISO y países personalizados
 - **Confidence scoring**: Sistema de confianza ajustable por sinónimo
 
-### Compatibilidad
-- **Cero breaking changes**: Compatible con todas las búsquedas existentes
-- **Degradación elegante**: Si falla sinónimos, continúa con otras estrategias
-- **Debugging completo**: Logs y métodos para monitoreo
-- **Testing ready**: Métodos utilitarios para validación
-
 ## Próximos Pasos Sugeridos
 
 ### Fase 2B: UX Mejorado
-- Mostrar indicador de sinónimo usado: *"Resultados para 'aguacate' (buscaste: 'palta')"*
+- Mostrar indicador de sinónimo usado: *"Resultados para 'avocado' (buscaste: 'palta')"*
 - Información regional en UI: *"'Palta' es el término usado en Argentina"*
 
 ### Fase 2C: Expansión de Datos
+- Agregar productos reales para lulo, maracuyá, guayaba
 - Ampliar base de datos a 100+ sinónimos
 - Agregar más regiones (Centro América, Caribe)
 - Incluir más idiomas (portugués, francés)
@@ -154,26 +175,31 @@ Búsqueda: "french bean" → Resultado: "judía verde" (Inglés UK)
 ## Archivos Creados/Modificados
 
 ### Archivos Nuevos
-- `src/data/synonyms.ts` - Base de datos de sinónimos
-- `src/services/search/SynonymService.ts` - Servicio de sinónimos
-- `src/services/search/strategies/SynonymMatchStrategy.ts` - Estrategia de matching
+- `src/data/synonyms.ts` - Base de datos de sinónimos con productos reales
+- `src/services/search/SynonymService.ts` - Servicio de sinónimos con productId
+- `src/services/search/strategies/SynonymMatchStrategy.ts` - Estrategia con boost de precisión
 
 ### Archivos Modificados
 - `src/services/search/HybridSearchEngine.ts` - Integración de nueva estrategia
-- `docs/prompts/hybrid-search-phase1.md` - Documentación actualizada
+- `src/services/search/types.ts` - Agregado `matchType: 'synonym'`
+- `docs/prompts/synonym-system-implementation.md` - Documentación actualizada
 
 ## Validación
 
 El sistema está listo para testing con los siguientes casos:
 ```typescript
-// Tests sugeridos
+// Tests actualizados con productos reales
 const testCases = [
-  { search: 'canguil', expect: 'palomitas de maíz', region: 'Ecuador' },
-  { search: 'palta', expect: 'aguacate', region: 'Argentina' },
-  { search: 'patata', expect: 'papa', region: 'España' },
-  { search: 'popcorn', expect: 'palomitas de maíz', lang: 'English' },
-  { search: 'choclo', expect: 'maíz', region: 'Andes' }
+  { search: 'palta', expect: 'avocado_001', region: 'Argentina', canonical: 'avocado' },
+  { search: 'aguacate', expect: 'avocado_001', region: 'México', canonical: 'avocado' },
+  { search: 'batata', expect: 'sweet_potato_006', region: 'Argentina', canonical: 'sweet potato' },
+  { search: 'camote', expect: 'sweet_potato_006', region: 'México', canonical: 'sweet potato' },
+  { search: 'papitas', expect: 'chips_009', region: 'Argentina', canonical: 'potato chips' },
+  { search: 'col rizada', expect: 'kale_005', region: 'España', canonical: 'kale' },
+  { search: 'quinua', expect: 'quinoa_002', region: 'Perú', canonical: 'quinoa' },
+  { search: 'arándanos', expect: 'blueberries_005', region: 'España', canonical: 'blueberries' },
+  { search: 'zanahoria', expect: 'carrot_004', region: 'España', canonical: 'carrot' }
 ];
 ```
 
-La implementación cumple con todos los requisitos: es agnóstica al usuario, mantiene información regional sin afectar performance, y es fácilmente extensible para futuras mejoras.
+La implementación cumple con todos los requisitos: es agnóstica al usuario, mantiene información regional sin afectar performance, es compatible con el sistema de traducciones existente, y mapea precisamente a productos reales para mayor exactitud en resultados.

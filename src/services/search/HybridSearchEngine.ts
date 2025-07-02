@@ -5,14 +5,16 @@ import { SearchResult, SearchOptions } from './types';
 import { SearchStrategyChain } from './SearchStrategyChain';
 import { ExactMatchStrategy, StartsWithMatchStrategy, ContainsMatchStrategy } from './strategies/MatchStrategy';
 import { FuzzyMatchStrategy } from './strategies/FuzzyMatchStrategy';
+import { SynonymMatchStrategy } from './strategies/SynonymMatchStrategy';
 
 /**
  * Motor de búsqueda híbrido refactorizado usando Strategy pattern y Chain of Responsibility
  * Implementa scoring inteligente que prioriza:
  * 1. Matches exactos
  * 2. Matches que empiezan con el término (starts with)
- * 3. Matches fuzzy para errores tipográficos
- * 4. Matches parciales (contains)
+ * 3. Matches de sinónimos regionales (canguil → palomitas de maíz)
+ * 4. Matches fuzzy para errores tipográficos
+ * 5. Matches parciales (contains)
  */
 export class HybridSearchEngine<T extends Searchable> {
   private items: T[];
@@ -35,6 +37,7 @@ export class HybridSearchEngine<T extends Searchable> {
     chain
       .addStrategy(new ExactMatchStrategy<T>(normalizer))        // Prioridad 100
       .addStrategy(new StartsWithMatchStrategy<T>(normalizer))   // Prioridad 90
+      .addStrategy(new SynonymMatchStrategy<T>())                // Prioridad 85
       .addStrategy(new FuzzyMatchStrategy<T>(this.items))        // Prioridad 80
       .addStrategy(new ContainsMatchStrategy<T>(normalizer));    // Prioridad 70
 
